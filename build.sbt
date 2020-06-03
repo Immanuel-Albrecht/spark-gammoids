@@ -12,5 +12,11 @@ libraryDependencies += "org.apache.spark" %% "spark-sql" % sparkVersion % "provi
 libraryDependencies += "org.apache.commons" % "commons-csv" % "1.2"
 
 
+// A bunch of libraries that may become handy when handling graphs
 libraryDependencies += "org.scala-graph" %% "graph-core" % "1.12.5"
 libraryDependencies += "org.jgrapht" % "jgrapht-core" % "1.4.0"
+libraryDependencies += "org.jgrapht" % "jgrapht-ext" % "1.4.0"
+
+// Chemistry Development Kit: Chemists love graph isomorphism problems, too
+// https://mvnrepository.com/artifact/org.openscience.cdk/cdk-bundle
+libraryDependencies += "org.openscience.cdk" % "cdk-bundle" % "2.3"
