@@ -13,3 +13,4 @@ libraryDependencies += "org.apache.commons" % "commons-csv" % "1.2"
 
 
 libraryDependencies += "org.scala-graph" %% "graph-core" % "1.12.5"
+libraryDependencies += "org.jgrapht" % "jgrapht-core" % "1.4.0"
