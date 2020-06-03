@@ -20,3 +20,11 @@ libraryDependencies += "org.jgrapht" % "jgrapht-ext" % "1.4.0"
 // Chemistry Development Kit: Chemists love graph isomorphism problems, too
 // https://mvnrepository.com/artifact/org.openscience.cdk/cdk-bundle
 libraryDependencies += "org.openscience.cdk" % "cdk-bundle" % "2.3"
+
+assemblyMergeStrategy in assembly := {
+  case "log4j.properties"                          => MergeStrategy.concat
+  case "header.txt"                                => MergeStrategy.discard
+  case x =>
+    val oldStrategy = (assemblyMergeStrategy in assembly).value
+    oldStrategy(x)
+}
