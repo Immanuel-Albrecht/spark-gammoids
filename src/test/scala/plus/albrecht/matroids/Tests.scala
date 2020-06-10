@@ -1,0 +1,79 @@
+package plus.albrecht.matroids
+
+
+import org.scalatest.flatspec.AnyFlatSpec
+import org.scalatest.matchers.should.Matchers
+
+
+class Tests extends AnyFlatSpec with Matchers {
+
+  "NamedMatroids" should "be valid" in {
+    val names: Set[String] = NamedMatroid.aliasList.map({ case (_, name) ⇒ name }).toSet
+    names.foreach(
+      (name: String) ⇒ {
+        assert(NamedMatroid(name).isValid().passed == true)
+      }
+    )
+  }
+
+  "MK4" should "be the right matroid" in {
+    val checkBasis: Map[Set[String], Boolean] = Map(
+      Set("a", "b", "c") → false,
+      Set("a", "b", "d") → true,
+      Set("a", "b", "e") → true,
+      Set("a", "b", "f") → true,
+      Set("a", "c", "d") → true,
+      Set("a", "c", "e") → true,
+      Set("a", "c", "f") → true,
+      Set("a", "d", "e") → true,
+      Set("a", "d", "f") → true,
+      Set("a", "e", "f") → false,
+      Set("b", "c", "d") → true,
+      Set("b", "c", "e") → true,
+      Set("b", "c", "f") → true,
+      Set("b", "d", "e") → false,
+      Set("b", "d", "f") → true,
+      Set("b", "e", "f") → true,
+      Set("c", "d", "e") → true,
+      Set("c", "d", "f") → false,
+      Set("c", "e", "f") → true,
+      Set("d", "e", "f") → true)
+
+    checkBasis.foreach({
+      case (x, isBase) ⇒ assert(NamedMatroid.mk4.isBasis(x) == isBase)
+    })
+  }
+
+  "B2-test" should "detect problems" in {
+    val not_mk4 = new BasisMatroid[String](Set(
+      Set("a","b","d"),
+      Set("a","b","e"),
+      Set("a","b","f"),
+      Set("a","c","d"),
+      Set("a","c","e"),
+      Set("a","c","f"),
+      Set("a","d","e"),
+      Set("a","d","f"),
+      Set("b","c","d"),
+     // Set("b","c","e"),
+      Set("b","c","f"),
+      Set("b","d","f"),
+      Set("b","e","f"),
+      Set("c","d","e"),
+      Set("c","e","f"),
+      Set("d","e","f")))
+
+    assert(not_mk4.isValid().passed == false)
+  }
+
+  "Unknown matroid name" should "throw" in {
+    try {
+      NamedMatroid("oeu]+oeugoensthoeu!jq]]oeu]]")
+      fail("Garbled matroid name did not throw!")
+    }
+    catch {
+      case _:Exception ⇒ Unit
+    }
+  }
+
+}

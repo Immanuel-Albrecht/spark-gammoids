@@ -30,6 +30,10 @@ libraryDependencies += "org.scalactic" %% "scalactic" % "3.1.2"
 // Unit Tests
 libraryDependencies += "org.scalatest" %% "scalatest" % "3.1.2" % Test
 
+// Cats
+scalacOptions += "-Ypartial-unification"
+libraryDependencies += "org.typelevel" %% "cats-core" % "2.1.1"
+
 
 // A bunch of libraries that may become handy when handling graphs
 //libraryDependencies += "org.scala-graph" %% "graph-core" % "1.12.5"
