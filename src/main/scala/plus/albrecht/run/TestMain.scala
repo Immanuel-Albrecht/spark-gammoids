@@ -9,8 +9,8 @@ object TestMain {
    * @param args
    */
   def main(args : Array[String]):Unit = {
-    println(s"Arguments: ${args}")
-    val spark = Spark.spark
-    println(s"Spark: ${spark}")
+    val is_test = (args contains "--unit-test")
+
+
   }
 }
