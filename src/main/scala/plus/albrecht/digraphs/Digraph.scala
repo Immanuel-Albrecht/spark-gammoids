@@ -7,34 +7,39 @@ import scala.collection.immutable
 /**
  * object representing a directed graph (digraph).
  *
- * @param vertices     Vertices in the digraph
+ * @param _vertices     Vertices in the digraph
  *
- * @param incidence    Family of incidence lists: if y \in incidence[x],
+ * @param _incidence    Family of incidence lists: if y \in incidence[x],
  *                     then there is a n arc y->x in the digraph
  *
- * @param invIncidence Family of inverse incidence lists: if x \in invIncidence[y],
+ * @param _invIncidence Family of inverse incidence lists: if x \in invIncidence[y],
  *                     then there is an arc x->y in the digraph
  *
  * @tparam V vertex type
  */
-class Digraph[V](val vertices: Iterable[V],
-                 val incidence: Map[V, Iterable[V]],
-                 val invIncidence: Map[V, Iterable[V]]) {
+class Digraph[V](val _vertices: Iterable[V],
+                 val _incidence: Map[V, Iterable[V]],
+                 val _invIncidence: Map[V, Iterable[V]]) extends traits.PathStructure[V] {
+
+  override def vertices() : Iterable[V] = _vertices
+
+
   /**
    * the vertices as set
    */
-  lazy val vertexSet = vertices.toSet
+  lazy val vertexSet = _vertices.toSet
+
 
   /**
    * the incidences as sets
    */
-  lazy val incidenceSets = incidence.mapValues(_.toSet)
+  lazy val incidenceSets = _incidence.mapValues(_.toSet)
 
   /**
    * the inverse incidence as sets
    */
 
-  lazy val invIncidenceSets = invIncidence.mapValues(_.toSet)
+  lazy val invIncidenceSets = _invIncidence.mapValues(_.toSet)
 
 
   /**
@@ -48,24 +53,24 @@ class Digraph[V](val vertices: Iterable[V],
    */
   def isValid(failFast: Boolean): TestResult = {
 
-    lazy val incident_vertices: Set[V] = incidence.flatMap({
+    lazy val incident_vertices: Set[V] = _incidence.flatMap({
       case (u, vs) ⇒
         vs
     }).toSet ++
-      incidence.keySet ++ invIncidence.flatMap({
+      _incidence.keySet ++ _invIncidence.flatMap({
       case (u, vs) ⇒
         vs
-    }).toSet ++ invIncidence.keySet
+    }).toSet ++ _invIncidence.keySet
 
 
-    lazy val arcs_by_incidence: Set[(V, V)] = incidence.flatMap({
+    lazy val arcs_by_incidence: Set[(V, V)] = _incidence.flatMap({
       case (u, vs) ⇒
         vs.map({
           case v ⇒ (u, v)
         })
     }).toSet
 
-    lazy val arcs_by_invIncidence: Set[(V, V)] = invIncidence.flatMap({
+    lazy val arcs_by_invIncidence: Set[(V, V)] = _invIncidence.flatMap({
       case (v, us) ⇒
         us.map({
           case u ⇒ (u, v)
@@ -127,13 +132,13 @@ class Digraph[V](val vertices: Iterable[V],
     val trivial: Set[(List[V], PathStats[V])] =
       targets.map(v ⇒ (List[V](v), PathStats[V](v))).toSet
 
-    (2 to vertices.size) /* maximum number of arcs in a path is #vertices - 1 */
+    (2 to _vertices.size) /* maximum number of arcs in a path is #vertices - 1 */
       .foldLeft((trivial, trivial))(
         {
           case ((all_p, new_p), _) ⇒ {
             val longer_paths = new_p.flatMap({
               case (path, pathstats) ⇒ {
-                invIncidence.getOrElse(pathstats.source, Set()).flatMap(v0 ⇒ {
+                _invIncidence.getOrElse(pathstats.source, Set()).flatMap(v0 ⇒ {
                   if (pathstats.visited contains v0) Nil
                   else
                     (List(v0) ++ path, pathstats.addSource(v0)) :: Nil
@@ -150,7 +155,7 @@ class Digraph[V](val vertices: Iterable[V],
   /**
    * all paths and their respective PathStats
    */
-  lazy val allPathsAndPathStats: Set[(List[V], PathStats[V])] = allPathsAndPathStatsThatEndIn(vertices)
+  lazy val allPathsAndPathStats: Set[(List[V], PathStats[V])] = allPathsAndPathStatsThatEndIn(_vertices)
 
   /**
    * all paths in the digraph
@@ -161,6 +166,14 @@ class Digraph[V](val vertices: Iterable[V],
    * the minimal statistics of all paths in the digraph
    */
   lazy val allPathStats: Set[PathStats[V]] = allPathsAndPathStats.map(_._2).toSet
+
+
+  override def paths(sources : Iterable[V],
+            avoiding : Iterable[V],
+            targets : Iterable[V]) : Iterable[PathStats[V]] = {
+    throw new Exception("NOT IMPLEMENTED")
+    Set()
+  }
 
 }
 
