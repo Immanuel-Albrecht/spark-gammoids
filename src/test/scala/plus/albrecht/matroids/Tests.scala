@@ -16,6 +16,27 @@ class Tests extends AnyFlatSpec with Matchers {
     )
   }
 
+  "MK4.rk" should "give correct rank" in {
+    val mk4 = NamedMatroid("MK4")
+
+    mk4._ground_set.subsets().foreach(x ⇒ {
+      val r = x.size match {
+        case q if q < 3 ⇒ q
+        case q if q > 3 ⇒ 3
+        case _ ⇒
+          x match {
+            case x if x == Set("a","b","c") ⇒ 2
+            case x if x == Set("a","e","f") ⇒ 2
+            case x if x == Set("b","d","e") ⇒ 2
+            case x if x == Set("c","d","f") ⇒ 2
+            case _ ⇒ 3
+          }
+      }
+      assert(mk4.rk(x) == r)
+    }
+    )
+  }
+
   "BasisMatroid.isValid()" should "work" in {
     val m0 = new BasisMatroid[Int](Set(1),Set(Set()),-1)
 
