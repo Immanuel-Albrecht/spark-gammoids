@@ -32,11 +32,55 @@ trait BasisMatroid[T] extends Matroid[T]{
   lazy val baseAxiomB2Test = new BaseAxiomB2(this)
 
   /**
+   * lazy test for non-negative matroid rank
+   */
+  lazy val rankNonNegativeTest : TestResult = {
+    if (rank() < 0)
+      TestResult(false,Array(f"[x] The rank is ${rank()} < 0."))
+    else
+      TestResult(true,Array(f"[v] ${rank()} is a valid rank."))
+  }
+
+  /** lazy test: non-empty basis family? */
+
+  lazy val nonEmptyBasisFamilyTest : TestResult = {
+    if (basisFamily().size < 1)
+      TestResult(false, Array("[x] Basis family is empty violating the basis existence axiom."))
+    else
+      TestResult(true, Array("[v] There is a basis."))
+  }
+
+  /** lazy test:  have all bases the right cardinality? */
+
+  lazy val basesCardinalityTest : TestResult = {
+    val wrong = basisFamily().foldLeft(0)({
+      case (count, basis) ⇒
+        if (basis.size == rank())
+          count
+        else
+          count + 1
+    })
+    TestResult(wrong == 0,Array(f"${if(wrong==0)"[v]" else "[x]"} ${wrong} bases have the wrong cardinality."))
+  }
+
+  /** lazy test: are the bases all in the ground set? */
+
+  lazy val basesInMatroidTest : TestResult = {
+    val wrong = basisFamily().foldLeft(0)({
+      case (count, basis) ⇒
+        if (isSubset(basis))
+          count
+        else
+          count + 1
+    })
+    TestResult(wrong == 0,Array(f"${if(wrong==0)"[v]" else "[x]"} ${wrong} bases have non-matroid elements."))
+  }
+
+  /**
    * Tests whether:
    *   - the rank is valid
    *   - the family of bases is nonempty
    *   - the bases have the right cardinality
-   *   - the bases are in the ground set
    *
    * @param failFast   if true, then return the result as soon as it is clear
    *                   that the object is not a valid matroid
@@ -45,45 +89,11 @@ trait BasisMatroid[T] extends Matroid[T]{
   override def isValid(failFast : Boolean) : TestResult = {
     /* here go the tests */
     val tests : List[() ⇒ TestResult] = List(
-      /* is the rank non-negative */
-      () ⇒ {
-        if (rank() < 0)
-          TestResult(false,Array(f"[x] The rank is ${rank()} < 0."))
-        else
-          TestResult(true,Array(f"[v] ${rank()} is a valid rank."))
-      },
-      /* non-empty basis family? */
-      () ⇒ {
-        if (basisFamily().size < 1)
-          TestResult(false, Array("[x] Basis family is empty violating the basis existence axiom."))
-        else
-          TestResult(true, Array("[v] There is a basis."))
-      },
-      /* have all bases the right cardinality? */
-      () ⇒ {
-        val wrong = basisFamily().foldLeft(0)({
-          case (count, basis) ⇒
-            if (basis.size == rank())
-              count
-            else
-              count + 1
-        })
-        TestResult(wrong == 0,Array(f"${if(wrong==0)"[v]" else "[x]"} ${wrong} bases have the wrong cardinality."))
-      },
-      /* are the bases all in the ground set? */
-      () ⇒ {
-        val wrong = basisFamily().foldLeft(0)({
-          case (count, basis) ⇒
-            if (isSubset(basis))
-              count
-            else
-              count + 1
-        })
-        TestResult(wrong == 0,Array(f"${if(wrong==0)"[v]" else "[x]"} ${wrong} bases have non-matroid elements."))
-      },
-      /* finally, test (B2) */
-      () ⇒ {baseAxiomB2Test.result}
-
+      () ⇒ rankNonNegativeTest,
+      () ⇒ nonEmptyBasisFamilyTest,
+      () ⇒ basesCardinalityTest,
+      () ⇒ basesInMatroidTest,
+      () ⇒ baseAxiomB2Test.result // This is a more complicated test with its own object.
     )
 
     /* apply the tests one after another */
