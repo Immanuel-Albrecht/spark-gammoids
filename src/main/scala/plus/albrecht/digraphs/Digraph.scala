@@ -118,21 +118,22 @@ class Digraph[V](val vertices: Iterable[V],
   /**
    * Determine all paths (and accompanying PathStats) in the digraph that end in certain targets.
    *
-   * @param targets   a set of vertices in which the paths are allowed to end
-   * @return  family of (path, PathStat) pairs
+   * @param targets a set of vertices in which the paths are allowed to end
+   *
+   * @return family of (path, PathStat) pairs
    */
-  def allPathsAndPathStatsThatEndIn(targets : Iterable[V]) :
-  Set[(List[V],PathStats[V])] = {
-    val trivial : Set[(List[V],PathStats[V])] =
-      targets.map(v ⇒ (List[V](v),PathStats[V](v))).toSet
+  def allPathsAndPathStatsThatEndIn(targets: Iterable[V]):
+  Set[(List[V], PathStats[V])] = {
+    val trivial: Set[(List[V], PathStats[V])] =
+      targets.map(v ⇒ (List[V](v), PathStats[V](v))).toSet
 
     (2 to vertices.size) /* maximum number of arcs in a path is #vertices - 1 */
-      .foldLeft((trivial,trivial))(
+      .foldLeft((trivial, trivial))(
         {
-          case ((all_p,new_p),_) ⇒ {
-            val longer_paths = new_p.flatMap( {
-              case (path,pathstats) ⇒ {
-                invIncidence.getOrElse(pathstats.source, Set()).flatMap( v0 ⇒ {
+          case ((all_p, new_p), _) ⇒ {
+            val longer_paths = new_p.flatMap({
+              case (path, pathstats) ⇒ {
+                invIncidence.getOrElse(pathstats.source, Set()).flatMap(v0 ⇒ {
                   if (pathstats.visited contains v0) Nil
                   else
                     (List(v0) ++ path, pathstats.addSource(v0)) :: Nil
@@ -149,17 +150,17 @@ class Digraph[V](val vertices: Iterable[V],
   /**
    * all paths and their respective PathStats
    */
-  lazy val allPathsAndPathStats : Set[(List[V],PathStats[V])] = allPathsAndPathStatsThatEndIn(vertices)
+  lazy val allPathsAndPathStats: Set[(List[V], PathStats[V])] = allPathsAndPathStatsThatEndIn(vertices)
 
   /**
    * all paths in the digraph
    */
-  lazy val allPaths : Set[List[V]] = allPathsAndPathStats.map(_._1).toSet
+  lazy val allPaths: Set[List[V]] = allPathsAndPathStats.map(_._1).toSet
 
   /**
    * the minimal statistics of all paths in the digraph
    */
-  lazy val allPathStats : Set[PathStats[V]] = allPathsAndPathStats.map(_._2).toSet
+  lazy val allPathStats: Set[PathStats[V]] = allPathsAndPathStats.map(_._2).toSet
 
 }
 
