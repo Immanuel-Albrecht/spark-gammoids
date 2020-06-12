@@ -16,20 +16,20 @@ class Tests extends AnyFlatSpec with Matchers {
   }
 
   "Config" should "work as expected" in {
-    val cfg0 = new Config() << ("a","a") << ("b","b") << ("c","c")
-    val cfg1 = new Config() << ("a","A") << ("b","B") << ("c","C")
+    val cfg0 = new Config() << ("a", "a") << ("b", "b") << ("c", "c")
+    val cfg1 = new Config() << ("a", "A") << ("b", "B") << ("c", "C")
     Config(_ ++ "lower" << cfg0)
     Config(_ ++ "upper" << cfg1)
-    Config(_ << ("b","_"))
-    Config(_ ++ Set("aux") << ("c","_"))
-    Config(_ ++ Set("aux") << ("d","XX"))
+    Config(_ << ("b", "_"))
+    Config(_ ++ Set("aux") << ("c", "_"))
+    Config(_ ++ Set("aux") << ("d", "XX"))
 
     assert(Config() >> "a" === None)
     assert(Config() >> "other" === None)
     assert(Config() ++ "aux" >> "d" === Some("XX"))
     assert(Config() >> "d" === None)
     assert(Config() ++ "aux" >> "a" === None)
-    assert(Config() ++ "aux" >> ("a",12) === 12)
+    assert(Config() ++ "aux" >> ("a", 12) === 12)
     assert(Config() >> "b" === Some("_"))
     assert(Config() ++ "aux" >> "b" === Some("_"))
     assert(Config() ++ "lower" >> "a" === Some("a"))
@@ -44,9 +44,9 @@ class Tests extends AnyFlatSpec with Matchers {
     assert((Config() ++ "lower" ++ "aux" ^ "upper") >> "b" === Some("B"))
     assert((Config() ++ "lower" ++ "aux" -- "lower") >> "b" === Some("_"))
     assert((Config() ++ "lower" ++ "aux" ^ Set("upper")) >> "b" === Some("B"))
-    assert((Config() ++ Set("lower","aux") -- "lower") >> "c" === Some("_"))
-    assert((Config() ++ Set("upper","aux") -- "lower" -- "aux") >> "c" === Some("C"))
-    assert((Config() ++ Set("upper","aux") -- Set("upper","aux") >> "c" === None))
+    assert((Config() ++ Set("lower", "aux") -- "lower") >> "c" === Some("_"))
+    assert((Config() ++ Set("upper", "aux") -- "lower" -- "aux") >> "c" === Some("C"))
+    assert((Config() ++ Set("upper", "aux") -- Set("upper", "aux") >> "c" === None))
 
   }
 }

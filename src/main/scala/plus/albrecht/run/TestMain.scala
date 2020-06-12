@@ -6,9 +6,10 @@ package plus.albrecht.run
 object TestMain {
   /**
    * In sbt interactive prompt, use 'run plus.albrecht.run.TestMain' to call this function.
+   *
    * @param args
    */
-  def main(args : Array[String]):Unit = {
+  def main(args: Array[String]): Unit = {
     val is_test = (args contains "--unit-test")
 
 

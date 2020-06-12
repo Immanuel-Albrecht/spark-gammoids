@@ -190,7 +190,7 @@ class Config(val currentTagSet: Set[String],
    * @return altered Config
    */
   def set(key: String, value: Any): Config = {
-    val tag_values : Map[Set[String], Any] = keyTagValue.getOrElse(key, Map[Set[String], Any]())
+    val tag_values: Map[Set[String], Any] = keyTagValue.getOrElse(key, Map[Set[String], Any]())
     val new_tag_values = tag_values ++ Map(currentTagSet → value)
 
     new Config(currentTagSet, keyTagValue + (key → new_tag_values))

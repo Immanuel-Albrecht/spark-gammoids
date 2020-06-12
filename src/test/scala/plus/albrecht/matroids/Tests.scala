@@ -46,22 +46,22 @@ class Tests extends AnyFlatSpec with Matchers {
 
   "B2-test" should "detect problems" in {
     val not_mk4 = new BasisMatroid[String](Set(
-      Set("a","b","d"),
-      Set("a","b","e"),
-      Set("a","b","f"),
-      Set("a","c","d"),
-      Set("a","c","e"),
-      Set("a","c","f"),
-      Set("a","d","e"),
-      Set("a","d","f"),
-      Set("b","c","d"),
-     // Set("b","c","e"),
-      Set("b","c","f"),
-      Set("b","d","f"),
-      Set("b","e","f"),
-      Set("c","d","e"),
-      Set("c","e","f"),
-      Set("d","e","f")))
+      Set("a", "b", "d"),
+      Set("a", "b", "e"),
+      Set("a", "b", "f"),
+      Set("a", "c", "d"),
+      Set("a", "c", "e"),
+      Set("a", "c", "f"),
+      Set("a", "d", "e"),
+      Set("a", "d", "f"),
+      Set("b", "c", "d"),
+      // Set("b","c","e"),
+      Set("b", "c", "f"),
+      Set("b", "d", "f"),
+      Set("b", "e", "f"),
+      Set("c", "d", "e"),
+      Set("c", "e", "f"),
+      Set("d", "e", "f")))
 
     assert(not_mk4.isValid().passed == false)
   }
@@ -72,7 +72,7 @@ class Tests extends AnyFlatSpec with Matchers {
       fail("Garbled matroid name did not throw!")
     }
     catch {
-      case _:Exception ⇒ Unit
+      case _: Exception ⇒ Unit
     }
   }
 
