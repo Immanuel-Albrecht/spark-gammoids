@@ -1,6 +1,6 @@
 package plus.albrecht.digraphs.traits
 
-import plus.albrecht.digraphs.PathStats
+import plus.albrecht.digraphs.QuasiPath
 
 /**
  *
@@ -17,11 +17,11 @@ trait PathStructure[V] {
    * @param sources     set of allowed sources
    * @param avoiding    set of forbidden visits
    * @param targets     set of allowed targets
-   * @return  family of PathStats
+   * @return  family of QuasiPaths
    */
   def paths(sources : Iterable[V],
             avoiding : Iterable[V],
-            targets : Iterable[V]) : Iterable[PathStats[V]]
+            targets : Iterable[V]) : Iterable[QuasiPath[V]]
 
   /**
    * get the vertex set of the digraph underlying this PathStructure

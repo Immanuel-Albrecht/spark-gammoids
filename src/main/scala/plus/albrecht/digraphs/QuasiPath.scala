@@ -17,10 +17,10 @@ import plus.albrecht.tests.TestResult
  *
  * @tparam V vertex type in the digraph
  */
-case class PathStats[V](source: V, visited: Set[V], target: V) {
+case class QuasiPath[V](source: V, visited: Set[V], target: V) {
 
   /**
-   * is this a valid PathStats object?
+   * is this a valid QuasiPaths object?
    */
   lazy val isValid: TestResult = {
     (
@@ -39,9 +39,9 @@ case class PathStats[V](source: V, visited: Set[V], target: V) {
    *
    * @return altered path stats
    */
-  def addSource(v: V): PathStats[V] = {
+  def addSource(v: V): QuasiPath[V] = {
     if (visited contains v) this else
-      new PathStats(v, visited ++ Set(v), target)
+      new QuasiPath(v, visited ++ Set(v), target)
   }
 
 }
@@ -49,7 +49,7 @@ case class PathStats[V](source: V, visited: Set[V], target: V) {
 /**
  * companion for easy construction
  */
-object PathStats {
+object QuasiPath {
 
   /**
    * creates stats of a trivial path
@@ -58,10 +58,10 @@ object PathStats {
    *
    * @tparam V vertex type
    *
-   * @return PathStats corresponding to (v)
+   * @return QuasiPaths corresponding to (v)
    */
-  def apply[V](v: V): PathStats[V] = {
-    new PathStats[V](v, Set(v), v)
+  def apply[V](v: V): QuasiPath[V] = {
+    new QuasiPath[V](v, Set(v), v)
   }
 
   /**
@@ -71,9 +71,9 @@ object PathStats {
    *
    * @tparam V vertex type
    *
-   * @return PathStats object
+   * @return QuasiPaths object
    */
-  def apply[V](vtx_list: Iterable[V]): PathStats[V] = {
-    new PathStats[V](vtx_list.head, vtx_list.toSet, vtx_list.last)
+  def apply[V](vtx_list: Iterable[V]): QuasiPath[V] = {
+    new QuasiPath[V](vtx_list.head, vtx_list.toSet, vtx_list.last)
   }
 }

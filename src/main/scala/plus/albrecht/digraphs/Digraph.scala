@@ -1,6 +1,7 @@
 package plus.albrecht.digraphs
 
 import plus.albrecht.tests.TestResult
+import plus.albrecht.util.Lazy
 
 import scala.collection.immutable
 
@@ -10,10 +11,10 @@ import scala.collection.immutable
  * @param _vertices     Vertices in the digraph
  *
  * @param _incidence    Family of incidence lists: if y \in incidence[x],
- *                     then there is a n arc y->x in the digraph
+ *                      then there is a n arc y->x in the digraph
  *
  * @param _invIncidence Family of inverse incidence lists: if x \in invIncidence[y],
- *                     then there is an arc x->y in the digraph
+ *                      then there is an arc x->y in the digraph
  *
  * @tparam V vertex type
  */
@@ -21,7 +22,7 @@ class Digraph[V](val _vertices: Iterable[V],
                  val _incidence: Map[V, Iterable[V]],
                  val _invIncidence: Map[V, Iterable[V]]) extends traits.PathStructure[V] {
 
-  override def vertices() : Iterable[V] = _vertices
+  override def vertices(): Iterable[V] = _vertices
 
 
   /**
@@ -121,16 +122,16 @@ class Digraph[V](val _vertices: Iterable[V],
 
 
   /**
-   * Determine all paths (and accompanying PathStats) in the digraph that end in certain targets.
+   * Determine all paths (and accompanying QuasiPaths) in the digraph that end in certain targets.
    *
    * @param targets a set of vertices in which the paths are allowed to end
    *
-   * @return family of (path, PathStat) pairs
+   * @return family of (path, QuasiPath) pairs
    */
   def allPathsAndPathStatsThatEndIn(targets: Iterable[V]):
-  Set[(List[V], PathStats[V])] = {
-    val trivial: Set[(List[V], PathStats[V])] =
-      targets.map(v ⇒ (List[V](v), PathStats[V](v))).toSet
+  Set[(List[V], QuasiPath[V])] = {
+    val trivial: Set[(List[V], QuasiPath[V])] =
+      targets.map(v ⇒ (List[V](v), QuasiPath[V](v))).toSet
 
     (2 to _vertices.size) /* maximum number of arcs in a path is #vertices - 1 */
       .foldLeft((trivial, trivial))(
@@ -153,9 +154,9 @@ class Digraph[V](val _vertices: Iterable[V],
   }
 
   /**
-   * all paths and their respective PathStats
+   * all paths and their respective QuasiPaths
    */
-  lazy val allPathsAndPathStats: Set[(List[V], PathStats[V])] = allPathsAndPathStatsThatEndIn(_vertices)
+  lazy val allPathsAndPathStats: Set[(List[V], QuasiPath[V])] = allPathsAndPathStatsThatEndIn(_vertices)
 
   /**
    * all paths in the digraph
@@ -165,14 +166,49 @@ class Digraph[V](val _vertices: Iterable[V],
   /**
    * the minimal statistics of all paths in the digraph
    */
-  lazy val allPathStats: Set[PathStats[V]] = allPathsAndPathStats.map(_._2).toSet
+  lazy val allPathStats: Set[QuasiPath[V]] = allPathsAndPathStats.map(_._2).toSet
 
 
-  override def paths(sources : Iterable[V],
-            avoiding : Iterable[V],
-            targets : Iterable[V]) : Iterable[PathStats[V]] = {
-    throw new Exception("NOT IMPLEMENTED")
-    Set()
+  /**
+   * super lazy path stats
+   */
+
+  lazy val pathStatsEndingInStartingIn:
+    Map[V, Lazy[Map[V, Set[QuasiPath[V]]]]] = {
+    _vertices.map(v ⇒ {
+      v → Lazy({
+        /* determine paths ending in v */
+        val paths_to_v = allPathsAndPathStatsThatEndIn(Set(v)).map(_._2)
+        paths_to_v.foldLeft(Map[V, Set[QuasiPath[V]]]())(
+          {
+            case (m, p) ⇒ m ++ Map(p.source →
+              (m.getOrElse(p.source, Set[QuasiPath[V]]()) ++ Set(p)))
+          }
+        )
+      }
+      )
+    }).toMap
+  }
+
+  override def paths(sources: Iterable[V],
+                     avoiding: Iterable[V],
+                     targets: Iterable[V]): Iterable[QuasiPath[V]] = {
+    val avoid: Set[V] = avoiding.toSet
+    val t: Set[V] = targets.toSet.diff(avoid)
+    val s: Set[V] = sources.toSet.diff(avoid)
+
+
+    t.foldLeft(Set[QuasiPath[V]]())({
+      case (paths, target) ⇒ {
+        s.foldLeft(paths)({
+          case (paths, source) ⇒
+            paths ++ pathStatsEndingInStartingIn.getOrElse(target,
+              Lazy(Map[V, Set[QuasiPath[V]]]()))().getOrElse(
+              source, Set[QuasiPath[V]]()).filter(
+              ps ⇒ avoid.intersect(ps.visited).isEmpty).toSet
+        })
+      }
+    })
   }
 
 }

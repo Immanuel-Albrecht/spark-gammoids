@@ -6,11 +6,11 @@ import org.scalatest.matchers.should.Matchers
 
 class Tests extends AnyFlatSpec with Matchers {
 
-  "PathStats.isValid" should "work" in {
-    assert(PathStats(1, Set(1, 2, 3), 3).isValid().passed == true)
-    assert(PathStats(1, Set(1, 2, 3), 4).isValid().passed == false)
-    assert(PathStats(4, Set(1, 2, 3), 3).isValid(true).passed == false)
-    assert(PathStats(4, Set(1, 2, 3), 6).isValid(false).passed == false)
+  "QuasiPaths.isValid" should "work" in {
+    assert(QuasiPath(1, Set(1, 2, 3), 3).isValid().passed == true)
+    assert(QuasiPath(1, Set(1, 2, 3), 4).isValid().passed == false)
+    assert(QuasiPath(4, Set(1, 2, 3), 3).isValid(true).passed == false)
+    assert(QuasiPath(4, Set(1, 2, 3), 6).isValid(false).passed == false)
   }
 
   lazy val d = Digraph(Set((1, 2), (2, 3), (2, 4), (4, 1)))
@@ -43,12 +43,27 @@ class Tests extends AnyFlatSpec with Matchers {
       List(4), List(4, 1), List(4, 1, 2), List(4, 1, 2, 3))
 
     assert(d.allPaths == paths_d)
-    assert(d.allPathStats == paths_d.map(PathStats(_)).toSet)
+    assert(d.allPathStats == paths_d.map(QuasiPath(_)).toSet)
   }
 
   "Digraph companion" should "create valid Digraphs" in {
     val dg0 = Digraph((1, 2) :: (2, 3) :: Nil)
     val dg1 = new Digraph(dg0.vertexSet, dg0.incidenceSets, dg0.invIncidenceSets)
     assert(dg1.isValid().passed == true)
+  }
+
+  lazy val d4 = Digraph((1 to 4).flatMap(x ⇒ (1 to 4).map((x,_))))
+
+  "paths" should "give correct results in full digraph with 4 vertices" in {
+    assert(d4.paths(Set(1),Set(),Set(2)).size == 1 /* 1 arc */ +
+                                                 2 /* 2 arcs via 3 or 4 */ +
+                                                 1 /* 3 arcs via 3 and 4;
+                                                 the two paths have the same QuasiPath
+                                                 */
+    )
+    assert(d4.paths(Set(1),Set(3),Set(2)).size == 1 /* 1 arc */ +
+                                                  1 /* 2 arcs via  4 */
+    )
+
   }
 }

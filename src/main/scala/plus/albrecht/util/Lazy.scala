@@ -8,6 +8,9 @@ package plus.albrecht.util
  */
 class Lazy[T](value : ⇒ T) {
 
+  /**
+   * once value is evaluated, cache it in this variable
+   */
   lazy val _value = value
 
   /**
