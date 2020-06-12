@@ -55,6 +55,8 @@ class Tests extends AnyFlatSpec with Matchers {
   lazy val d4 = Digraph((1 to 4).flatMap(x ⇒ (1 to 4).map((x,_))))
 
   "paths" should "give correct results in full digraph with 4 vertices" in {
+    assert(d4.vertices() == Set(1,2,3,4))
+
     assert(d4.paths(Set(1),Set(),Set(2)).size == 1 /* 1 arc */ +
                                                  2 /* 2 arcs via 3 or 4 */ +
                                                  1 /* 3 arcs via 3 and 4;
