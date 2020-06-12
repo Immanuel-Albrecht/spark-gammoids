@@ -61,7 +61,7 @@ class BaseAxiomB2[T](val M: BasisMatroid[T],
     /* I guess there should be something smarter that stops iterating early
        if failFast is set. At least we skip the inner iteration.
      */
-    val errors: Array[String] = M.basisFamily().foldLeft(Array[String]())(
+    val errors: List[String] = M.basisFamily().foldLeft(List[String]())(
       { case (errors, b1) ⇒
         if (failFast && (!errors.isEmpty)) errors else {
           M.basisFamily().foldLeft(errors)(
@@ -79,7 +79,7 @@ class BaseAxiomB2[T](val M: BasisMatroid[T],
                       if (hypo_bases.getOrElse(b1 - x, Set[T]()).intersect(inElements)
                         .isEmpty) {
                         /* there is no candidate that extends b1-x to another base */
-                        errors ++ Array(f"[x] ${b1} - ${x} has no candidate in ${inElements}" +
+                        errors ++ List(f"[x] ${b1} - ${x} has no candidate in ${inElements}" +
                           f" " +
                           f"to make another basis. [Augmentation-List: ${
                             hypo_bases
@@ -96,7 +96,7 @@ class BaseAxiomB2[T](val M: BasisMatroid[T],
     )
 
     if (errors.isEmpty)
-      TestResult(true, Array("[v] axiom (B2) holds."))
+      TestResult(true, List("[v] axiom (B2) holds."))
     else
       TestResult(false, errors)
   }

@@ -37,18 +37,18 @@ trait BasisMatroid[T] extends Matroid[T] {
    */
   lazy val rankNonNegativeTest: TestResult = {
     if (rank() < 0)
-      TestResult(false, Array(f"[x] The rank is ${rank()} < 0."))
+      TestResult(false, List(f"[x] The rank is ${rank()} < 0."))
     else
-      TestResult(true, Array(f"[v] ${rank()} is a valid rank."))
+      TestResult(true, List(f"[v] ${rank()} is a valid rank."))
   }
 
   /** lazy test: non-empty basis family? */
 
   lazy val nonEmptyBasisFamilyTest: TestResult = {
     if (basisFamily().size < 1)
-      TestResult(false, Array("[x] Basis family is empty violating the basis existence axiom."))
+      TestResult(false, List("[x] Basis family is empty violating the basis existence axiom."))
     else
-      TestResult(true, Array("[v] There is a basis."))
+      TestResult(true, List("[v] There is a basis."))
   }
 
   /** lazy test:  have all bases the right cardinality? */
@@ -61,7 +61,7 @@ trait BasisMatroid[T] extends Matroid[T] {
         else
           count + 1
     })
-    TestResult(wrong == 0, Array(f"${if (wrong == 0) "[v]" else "[x]"} ${wrong} bases have the wrong cardinality."))
+    TestResult(wrong == 0, List(f"${if (wrong == 0) "[v]" else "[x]"} ${wrong} bases have the wrong cardinality."))
   }
 
   /** lazy test: are the bases all in the ground set? */
@@ -74,7 +74,7 @@ trait BasisMatroid[T] extends Matroid[T] {
         else
           count + 1
     })
-    TestResult(wrong == 0, Array(f"${if (wrong == 0) "[v]" else "[x]"} ${wrong} bases have non-matroid elements."))
+    TestResult(wrong == 0, List(f"${if (wrong == 0) "[v]" else "[x]"} ${wrong} bases have non-matroid elements."))
   }
 
   /**
@@ -99,7 +99,7 @@ trait BasisMatroid[T] extends Matroid[T] {
     )
 
     /* apply the tests one after another */
-    tests.foldLeft(TestResult(true, Array()))({
+    tests.foldLeft(TestResult(true, List()))({
       case (last_result, next_test) ⇒ {
         if (failFast && (!last_result.passed)) last_result
         else last_result ++ next_test()

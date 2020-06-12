@@ -23,10 +23,10 @@ case class PathStats[V](source: V, visited: Set[V], target: V) {
    * is this a valid PathStats object?
    */
   lazy val isValid: TestResult = {
-    (if (visited contains source) TestResult(true, Array("[v] Source is visited."))
-    else TestResult(false, Array("[x] Source is not visited."))) ++ (if (visited contains target)
-      TestResult(true, Array("[v] Target is visited."))
-    else TestResult(false, Array("[x] Target is not visited."))
+    (if (visited contains source) TestResult("[v] Source is visited.")
+    else TestResult("[x] Source is not visited.")) ++ (if (visited contains target)
+      TestResult("[v] Target is visited.")
+    else TestResult("[x] Target is not visited.")
       )
   }
 }
