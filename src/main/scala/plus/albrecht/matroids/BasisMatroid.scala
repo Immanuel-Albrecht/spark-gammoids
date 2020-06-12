@@ -44,17 +44,17 @@ class BasisMatroid[T](val _ground_set: Set[T],
        with any of the bases of the matroid */
 
 
-    x.toSet  /* We have to convert x to a set because otherwise we would
+    x.toSet /* We have to convert x to a set because otherwise we would
                 miscalculate the rank when an element occurs more than once!
-    */ .foldLeft((0,_basis_family))({
-      case ((r0,fam0), e) ⇒
+    */ .foldLeft((0, _basis_family))({
+      case ((r0, fam0), e) ⇒
         val fam1 = basesContaining.getOrElse(e, Set[Set[T]]()).intersect(fam0)
-        if ( fam1.isEmpty ) {
+        if (fam1.isEmpty) {
           /* e is in the closure of the previous elements */
           (r0, fam0)
         } else {
           /* e is not in the closure */
-          (r0 + 1,fam1)
+          (r0 + 1, fam1)
         }
     })._1
     /* So, how exactly does this work, one might ask?

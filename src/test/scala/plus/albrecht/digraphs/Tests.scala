@@ -14,14 +14,14 @@ class Tests extends AnyFlatSpec with Matchers {
   }
 
   "Digraph.isValid" should "work" in {
-    val vs = Set(1,2,3)
+    val vs = Set(1, 2, 3)
     val wrongVs = Set(1)
-    val inc = Map(1→Set(2))
-    val invInc = Map(2→Set(1))
-    val wrongIncs = Map(3→Set(2)) :: Map[Int,Set[Int]]() :: Nil
+    val inc = Map(1 → Set(2))
+    val invInc = Map(2 → Set(1))
+    val wrongIncs = Map(3 → Set(2)) :: Map[Int, Set[Int]]() :: Nil
 
-    assert(new Digraph(vs,inc,invInc).isValid().passed == true)
-    assert(new Digraph(wrongVs,inc,invInc).isValid().passed == false)
+    assert(new Digraph(vs, inc, invInc).isValid().passed == true)
+    assert(new Digraph(wrongVs, inc, invInc).isValid().passed == false)
     wrongIncs.foreach(
       {
         case x ⇒ {
@@ -33,8 +33,8 @@ class Tests extends AnyFlatSpec with Matchers {
   }
 
   "Digraph companion" should "create valid Digraphs" in {
-    val dg0 = Digraph((1,2)::(2,3)::Nil)
-    val dg1 = new Digraph(dg0.vertexSet,dg0.incidenceSets,dg0.invIncidenceSets)
+    val dg0 = Digraph((1, 2) :: (2, 3) :: Nil)
+    val dg1 = new Digraph(dg0.vertexSet, dg0.incidenceSets, dg0.invIncidenceSets)
     assert(dg1.isValid().passed == true)
   }
 }

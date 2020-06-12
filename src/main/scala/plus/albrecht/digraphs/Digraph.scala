@@ -77,16 +77,22 @@ class Digraph[V](val vertices: Iterable[V],
       () ⇒ {
         if (incident_vertices subsetOf vertexSet) TestResult(true,
           "[v] Arcs and incidence lists consists of vertices of this digraph." :: Nil)
-        else TestResult(false, f"[x] ${incident_vertices.diff(vertexSet)
-          .size} referenced vertices are not in the vertex set of this digraph." :: Nil)
+        else TestResult(false, f"[x] ${
+          incident_vertices.diff(vertexSet)
+            .size
+        } referenced vertices are not in the vertex set of this digraph." :: Nil)
       },
       () ⇒ {
         if (arcs_by_incidence == arcs_by_invIncidence) TestResult(true,
           "[v] incidence and invIncidence structure mirror each other." :: Nil)
         else {
-          TestResult(false, f"[x] incidence has ${arcs_by_incidence.diff(arcs_by_invIncidence)
-            .size} extra arcs, invIncidence has ${arcs_by_invIncidence.diff(arcs_by_incidence)
-            .size} extra arcs" :: Nil)
+          TestResult(false, f"[x] incidence has ${
+            arcs_by_incidence.diff(arcs_by_invIncidence)
+              .size
+          } extra arcs, invIncidence has ${
+            arcs_by_invIncidence.diff(arcs_by_incidence)
+              .size
+          } extra arcs" :: Nil)
         }
       },
     )
@@ -106,7 +112,7 @@ class Digraph[V](val vertices: Iterable[V],
    *
    * @return isValid(true)
    */
-  def isValid() : TestResult = isValid(true)
+  def isValid(): TestResult = isValid(true)
 
 
 }
@@ -121,25 +127,28 @@ object Digraph {
   /**
    * creates a digraph induced by a given set of arcs
    *
-   * @param arcs  a list of arcs
-   * @tparam V  vertex ype
-   * @return  new Digraph object
+   * @param arcs a list of arcs
+   *
+   * @tparam V vertex ype
+   *
+   * @return new Digraph object
    */
-  def apply[V](arcs : Iterable[(V,V)]): Digraph[V] = {
+  def apply[V](arcs: Iterable[(V, V)]): Digraph[V] = {
     val vertices_inc_inv = arcs.foldLeft(
       (Set[V](),
-        Map[V,Set[V]](),
-        Map[V,Set[V]]()))({
+        Map[V, Set[V]](),
+        Map[V, Set[V]]()))({
       case (((vs, inc, inv), (u, v))) ⇒ (
         /* add to vertex set */
-        vs ++ Set(u,v),
+        vs ++ Set(u, v),
         /* add to incidence list */
-        inc ++ Map(u → (inc.getOrElse(u,Set[V]()) ++ Set(v))),
+        inc ++ Map(u → (inc.getOrElse(u, Set[V]()) ++ Set(v))),
         /* add to inverse incidence list */
-        inv ++ Map(v → (inc.getOrElse(v,Set[V]()) ++ Set(u))),
-        )})
+        inv ++ Map(v → (inc.getOrElse(v, Set[V]()) ++ Set(u))),
+      )
+    })
     val (vertices, incidence, invIncidence) = vertices_inc_inv
 
-    new Digraph[V](vertices,incidence,invIncidence)
+    new Digraph[V](vertices, incidence, invIncidence)
   }
 }

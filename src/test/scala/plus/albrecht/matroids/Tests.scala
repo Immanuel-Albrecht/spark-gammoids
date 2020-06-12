@@ -25,10 +25,10 @@ class Tests extends AnyFlatSpec with Matchers {
         case q if q > 3 ⇒ 3
         case _ ⇒
           x match {
-            case x if x == Set("a","b","c") ⇒ 2
-            case x if x == Set("a","e","f") ⇒ 2
-            case x if x == Set("b","d","e") ⇒ 2
-            case x if x == Set("c","d","f") ⇒ 2
+            case x if x == Set("a", "b", "c") ⇒ 2
+            case x if x == Set("a", "e", "f") ⇒ 2
+            case x if x == Set("b", "d", "e") ⇒ 2
+            case x if x == Set("c", "d", "f") ⇒ 2
             case _ ⇒ 3
           }
       }
@@ -38,23 +38,23 @@ class Tests extends AnyFlatSpec with Matchers {
   }
 
   "BasisMatroid.isValid()" should "work" in {
-    val m0 = new BasisMatroid[Int](Set(1),Set(Set()),-1)
+    val m0 = new BasisMatroid[Int](Set(1), Set(Set()), -1)
 
     assert(m0.isValid().passed == false)
 
-    val m1 = new BasisMatroid[Int](Set(1),Set(Set()),1)
+    val m1 = new BasisMatroid[Int](Set(1), Set(Set()), 1)
 
     assert(m1.isValid().passed == false)
 
-    val m2 = new BasisMatroid[Int](Set(1),Set(),1)
+    val m2 = new BasisMatroid[Int](Set(1), Set(), 1)
 
     assert(m2.isValid().passed == false)
 
-    val m3 = new BasisMatroid[Int](Set(1),Set(Set()),0)
+    val m3 = new BasisMatroid[Int](Set(1), Set(Set()), 0)
 
     assert(m3.isValid().passed == true)
 
-    val m4 = new BasisMatroid[Int](Set(1),Set(Set(2)),1)
+    val m4 = new BasisMatroid[Int](Set(1), Set(Set(2)), 1)
 
     assert(m4.isValid().passed == false)
 

@@ -10,8 +10,9 @@ trait RankMatroid[T] extends Matroid[T] {
   /**
    * rank function of the matroid
    *
-   * @param x   set of matroid elements
+   * @param x set of matroid elements
+   *
    * @return the rank of the set x
    */
-  def rk(x : Iterable[T]) : Int
+  def rk(x: Iterable[T]): Int
 }
