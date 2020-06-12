@@ -13,6 +13,8 @@ class Tests extends AnyFlatSpec with Matchers {
     assert(PathStats(4, Set(1, 2, 3), 6).isValid(false).passed == false)
   }
 
+  lazy val d = Digraph(Set((1,2),(2,3),(2,4),(4,1)))
+
   "Digraph.isValid" should "work" in {
     val vs = Set(1, 2, 3)
     val wrongVs = Set(1)
@@ -20,6 +22,7 @@ class Tests extends AnyFlatSpec with Matchers {
     val invInc = Map(2 → Set(1))
     val wrongIncs = Map(3 → Set(2)) :: Map[Int, Set[Int]]() :: Nil
 
+    assert(d.isValid().passed == true)
     assert(new Digraph(vs, inc, invInc).isValid().passed == true)
     assert(new Digraph(wrongVs, inc, invInc).isValid().passed == false)
     wrongIncs.foreach(
@@ -30,6 +33,17 @@ class Tests extends AnyFlatSpec with Matchers {
         }
       }
     )
+  }
+
+  "Digraph.allPaths" should "work" in {
+    val paths_d = Set(
+      List(1),List(1,2),List(1,2,3),List(1,2,4),
+      List(2),List(2,3),List(2,4),List(2,4,1),
+      List(3),
+      List(4),List(4,1),List(4,1,2),List(4,1,2,3))
+
+    assert(d.allPaths == paths_d)
+    assert(d.allPathStats == paths_d.map(PathStats(_)).toSet)
   }
 
   "Digraph companion" should "create valid Digraphs" in {

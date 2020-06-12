@@ -115,6 +115,52 @@ class Digraph[V](val vertices: Iterable[V],
   def isValid(): TestResult = isValid(true)
 
 
+  /**
+   * Determine all paths (and accompanying PathStats) in the digraph that end in certain targets.
+   *
+   * @param targets   a set of vertices in which the paths are allowed to end
+   * @return  family of (path, PathStat) pairs
+   */
+  def allPathsAndPathStatsThatEndIn(targets : Iterable[V]) :
+  Set[(List[V],PathStats[V])] = {
+    val trivial : Set[(List[V],PathStats[V])] =
+      targets.map(v ⇒ (List[V](v),PathStats[V](v))).toSet
+
+    (2 to vertices.size) /* maximum number of arcs in a path is #vertices - 1 */
+      .foldLeft((trivial,trivial))(
+        {
+          case ((all_p,new_p),_) ⇒ {
+            val longer_paths = new_p.flatMap( {
+              case (path,pathstats) ⇒ {
+                invIncidence.getOrElse(pathstats.source, Set()).flatMap( v0 ⇒ {
+                  if (pathstats.visited contains v0) Nil
+                  else
+                    (List(v0) ++ path, pathstats.addSource(v0)) :: Nil
+                })
+              }
+            })
+
+            (all_p ++ longer_paths, longer_paths)
+          }
+        }
+      )._1
+  }
+
+  /**
+   * all paths and their respective PathStats
+   */
+  lazy val allPathsAndPathStats : Set[(List[V],PathStats[V])] = allPathsAndPathStatsThatEndIn(vertices)
+
+  /**
+   * all paths in the digraph
+   */
+  lazy val allPaths : Set[List[V]] = allPathsAndPathStats.map(_._1).toSet
+
+  /**
+   * the minimal statistics of all paths in the digraph
+   */
+  lazy val allPathStats : Set[PathStats[V]] = allPathsAndPathStats.map(_._2).toSet
+
 }
 
 
@@ -144,7 +190,7 @@ object Digraph {
         /* add to incidence list */
         inc ++ Map(u → (inc.getOrElse(u, Set[V]()) ++ Set(v))),
         /* add to inverse incidence list */
-        inv ++ Map(v → (inc.getOrElse(v, Set[V]()) ++ Set(u))),
+        inv ++ Map(v → (inv.getOrElse(v, Set[V]()) ++ Set(u))),
       )
     })
     val (vertices, incidence, invIncidence) = vertices_inc_inv
