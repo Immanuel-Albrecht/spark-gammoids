@@ -26,7 +26,7 @@ class Digraph[V](val _vertices: Iterable[V],
    * cache the dual digraph, this way, we achieve this.opp().opp() === this,
    * we initialize it once it is requested
    */
-  private var reflectDual : Digraph[V] = null
+  private var reflectDual: Digraph[V] = null
 
   /**
    * get the dual digraph
@@ -34,14 +34,13 @@ class Digraph[V](val _vertices: Iterable[V],
    *
    * @return Digraph object
    */
-  def opp() : Digraph[V] = {
+  def opp(): Digraph[V] = {
     if (reflectDual == null) {
-      reflectDual = new Digraph[V](_vertices,_invIncidence,_incidence)
+      reflectDual = new Digraph[V](_vertices, _invIncidence, _incidence)
       reflectDual.reflectDual = this
     }
     reflectDual
   }
-
 
 
   override def vertices(): Iterable[V] = _vertices
@@ -68,17 +67,17 @@ class Digraph[V](val _vertices: Iterable[V],
    * Tests whether the incidence of this digraph equals the given other
    * incidence.
    *
-   *
    * @param other_incidence
+   *
    * @return true, if both incidences describe the same arc set
    */
-  def compareIncidence(other_incidence : Map[V, Set[V]]) : Boolean = {
+  def compareIncidence(other_incidence: Map[V, Set[V]]): Boolean = {
 
     _incidence.keySet.union(other_incidence.keySet).foldLeft(true)({
       case (all_good, v) ⇒
         if (all_good) {
-          val vx0 = incidenceSets.getOrElse(v,Set())
-          val vx1 = other_incidence.getOrElse(v,Set()).toSet
+          val vx0 = incidenceSets.getOrElse(v, Set())
+          val vx1 = other_incidence.getOrElse(v, Set()).toSet
           vx0 == vx1
         } else false
     })
@@ -89,18 +88,19 @@ class Digraph[V](val _vertices: Iterable[V],
    * assuming that if both objects are Digraphs,
    * then they are both valid objects.
    *
-   * @param that  compare to this object
+   * @param that compare to this object
+   *
    * @return true, if both digraphs are equal
    */
-  override def equals(that : Any) : Boolean = that match {
-    case that : Digraph[V] ⇒ {
+  override def equals(that: Any): Boolean = that match {
+    case that: Digraph[V] ⇒ {
       this.vertexSet == that.vertexSet &&
         compareIncidence(that.incidenceSets)
-      /* assuming that both objects are valid, we can skip this._invIncidence == that._invIncidence */
+      /* assuming that both objects are valid, we can skip this._invIncidence == that
+      ._invIncidence */
     }
     case _ ⇒ false
   }
-
 
 
   /**
@@ -182,7 +182,8 @@ class Digraph[V](val _vertices: Iterable[V],
 
 
   /**
-   * Determine all paths (and accompanying QuasiPaths) in the digraph that end in certain targets.
+   * Determine all paths (and accompanying QuasiPaths) in the digraph that end in certain
+   * targets.
    *
    * @param targets a set of vertices in which the paths are allowed to end
    *
@@ -216,7 +217,8 @@ class Digraph[V](val _vertices: Iterable[V],
   /**
    * all paths and their respective QuasiPaths
    */
-  lazy val allPathsAndPathStats: Set[(List[V], QuasiPath[V])] = allPathsAndPathStatsThatEndIn(_vertices)
+  lazy val allPathsAndPathStats: Set[(List[V], QuasiPath[V])] =
+    allPathsAndPathStatsThatEndIn(_vertices)
 
   /**
    * all paths in the digraph

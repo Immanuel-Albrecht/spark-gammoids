@@ -25,7 +25,7 @@ trait RankMatroid[T] extends Matroid[T] {
    *
    * @return the rank of the set x with respect to the dual of this matroid
    */
-  def `rk*`(x : Iterable[T]) : Int = {
+  def `rk*`(x: Iterable[T]): Int = {
     val s = x.toSet
     /* rk*(X) = rk(E\X) + |X| - rk(E) */
     rk(groundSetAsSet.diff(s)) + s.size - rank()

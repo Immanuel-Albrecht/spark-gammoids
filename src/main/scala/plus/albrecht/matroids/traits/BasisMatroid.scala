@@ -32,7 +32,7 @@ trait BasisMatroid[T] extends Matroid[T] {
    *
    * @return True, if set is indeed a basis of the dual of this matroid
    */
-  def `isBasis*`(set :Iterable[T]):Boolean = {
+  def `isBasis*`(set: Iterable[T]): Boolean = {
     val `b*` = groundSetAsSet.diff(set.toSet)
     /* the bases of the dual matroid are the complements of the bases of the primal matroid */
     isBasis(`b*`)
@@ -73,7 +73,8 @@ trait BasisMatroid[T] extends Matroid[T] {
         else
           count + 1
     })
-    TestResult(wrong == 0, List(f"${if (wrong == 0) "[v]" else "[x]"} ${wrong} bases have the wrong cardinality."))
+    TestResult(wrong == 0, List(f"${if (wrong == 0) "[v]" else "[x]"} ${wrong} bases have " +
+      f"the wrong cardinality."))
   }
 
   /** lazy test: are the bases all in the ground set? */
@@ -86,7 +87,8 @@ trait BasisMatroid[T] extends Matroid[T] {
         else
           count + 1
     })
-    TestResult(wrong == 0, List(f"${if (wrong == 0) "[v]" else "[x]"} ${wrong} bases have non-matroid elements."))
+    TestResult(wrong == 0, List(f"${if (wrong == 0) "[v]" else "[x]"} ${wrong} bases have " +
+      f"non-matroid elements."))
   }
 
   /**

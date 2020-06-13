@@ -42,7 +42,7 @@ trait Matroid[T] {
    *
    * @return the rank of the dual matroid
    */
-  def `rank*`() : Int = {
+  def `rank*`(): Int = {
     /* since the bases of the dual matroid are the complements of
        bases of this matroid, the rank of the dual matroid equals to
      */

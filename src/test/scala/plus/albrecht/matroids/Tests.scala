@@ -39,13 +39,13 @@ class Tests extends AnyFlatSpec with Matchers {
 
   "MK4" should "be self-dual" in {
     /* note that M(K4) is not identically self-dual */
-    val phi = Map("a"→"d","b"→"f","c"→"e",
-                  "d"→"a","f"→"b","e"→"c")
+    val phi = Map("a" → "d", "b" → "f", "c" → "e",
+      "d" → "a", "f" → "b", "e" → "c")
     val mk4 = NamedMatroid("MK4")
 
     assert(mk4.rank() == mk4.`rank*`())
 
-    mk4.groundSetAsSet.subsets().foreach( x ⇒ {
+    mk4.groundSetAsSet.subsets().foreach(x ⇒ {
       val x_phi = x.map(phi(_))
       assert(mk4.rk(x) == mk4.`rk*`(x_phi))
       assert(mk4.isBasis(x) == mk4.`isBasis*`(x_phi))
