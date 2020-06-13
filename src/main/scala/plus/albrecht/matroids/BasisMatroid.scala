@@ -39,6 +39,20 @@ class BasisMatroid[T](val _ground_set: Set[T],
     })
   }
 
+  override def equals(that: Any): Boolean = that match {
+    case basisMatroid: BasisMatroid[T] ⇒ {
+      (
+        basisMatroid.rank() == _rank
+        ) && (
+        basisMatroid.groundSetAsSet == _ground_set
+      ) && (
+        throw new Exception("TODO!") /* TODO ! */
+      )
+    }
+    case _ ⇒ false
+  }
+
+
   override def rk(x: Iterable[T]): Int = {
     /* the rank of x is the maximal cardinality of the intersection of x
        with any of the bases of the matroid */

@@ -30,7 +30,8 @@ object Gammoid {
    * where d' arises from d by deleting all vertices from 'avoid'
    *
    * @param d    digraph (we only need its PathStructure though)
-   * @param t    set of targets of the gammoid
+   * @param t    set of targets of the gammoid (this is actually an iterable,
+   *                some orderings may be a lot faster than others)
    * @param e    set of edges of the gammoid
    * @param avoid set of vertices in d that are forbidden to use
    * @tparam V   type for vertices/matroid elements
@@ -38,7 +39,7 @@ object Gammoid {
    */
   def obtainGammoidFromRepresentationAvoiding[V](
                                                   d : PathStructure[V],
-                                                  t : Set[V],
+                                                  t : Iterable[V],
                                                   e : Set[V],
                                                   avoid : Set[V])  : BasisMatroid[V]= {
     val (rank,quasi_routings) : (Int,Set[QuasiRouting[V]]) =
