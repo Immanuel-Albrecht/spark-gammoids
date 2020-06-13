@@ -22,6 +22,28 @@ class Digraph[V](val _vertices: Iterable[V],
                  val _incidence: Map[V, Iterable[V]],
                  val _invIncidence: Map[V, Iterable[V]]) extends traits.PathStructure[V] {
 
+  /**
+   * cache the dual digraph, this way, we achieve this.opp().opp() === this,
+   * we initialize it once it is requested
+   */
+  private var reflectDual : Digraph[V] = null
+
+  /**
+   * get the dual digraph
+   * (i.e. the Digraph with all arcs reversed)
+   *
+   * @return Digraph object
+   */
+  def opp() : Digraph[V] = {
+    if (reflectDual == null) {
+      reflectDual = new Digraph[V](_vertices,_invIncidence,_incidence)
+      reflectDual.reflectDual = this
+    }
+    reflectDual
+  }
+
+
+
   override def vertices(): Iterable[V] = _vertices
 
 
@@ -41,6 +63,44 @@ class Digraph[V](val _vertices: Iterable[V],
    */
 
   lazy val invIncidenceSets = _invIncidence.mapValues(_.toSet)
+
+  /**
+   * Tests whether the incidence of this digraph equals the given other
+   * incidence.
+   *
+   *
+   * @param other_incidence
+   * @return true, if both incidences describe the same arc set
+   */
+  def compareIncidence(other_incidence : Map[V, Set[V]]) : Boolean = {
+
+    _incidence.keySet.union(other_incidence.keySet).foldLeft(true)({
+      case (all_good, v) ⇒
+        if (all_good) {
+          val vx0 = incidenceSets.getOrElse(v,Set())
+          val vx1 = other_incidence.getOrElse(v,Set()).toSet
+          vx0 == vx1
+        } else false
+    })
+  }
+
+  /**
+   * determine whether two digraphs are equal,
+   * assuming that if both objects are Digraphs,
+   * then they are both valid objects.
+   *
+   * @param that  compare to this object
+   * @return true, if both digraphs are equal
+   */
+  override def equals(that : Any) : Boolean = that match {
+    case that : Digraph[V] ⇒ {
+      this.vertexSet == that.vertexSet &&
+        compareIncidence(that.incidenceSets)
+      /* assuming that both objects are valid, we can skip this._invIncidence == that._invIncidence */
+    }
+    case _ ⇒ false
+  }
+
 
 
   /**

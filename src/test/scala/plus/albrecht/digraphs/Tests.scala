@@ -68,4 +68,15 @@ class Tests extends AnyFlatSpec with Matchers {
     )
 
   }
+
+  "Digraph.opp()" should "act like identity on a full digraph" in {
+    assert(d4 == d4.opp())
+  }
+
+  /* opp.opp should reflect this */
+  d4.opp().opp() should be theSameInstanceAs d4
+
+  "Digraph" should "not equal some object of a different type" in {
+    assert(d4 != Set(1,2))
+  }
 }
