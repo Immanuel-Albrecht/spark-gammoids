@@ -30,7 +30,8 @@ object NamedMatroid {
   )
 
   def apply(name: String): BasisMatroid[String] = {
-    aliasList.getOrElse(name, name) match {
+    val upperName = name.toUpperCase()
+    aliasList.getOrElse(upperName, upperName) match {
       case "M(K4)" ⇒ mk4
       case _ ⇒ throw new Exception(f"Unknown matroid: ${name}.")
     }
