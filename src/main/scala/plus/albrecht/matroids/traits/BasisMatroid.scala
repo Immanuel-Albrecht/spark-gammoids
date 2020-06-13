@@ -25,6 +25,18 @@ trait BasisMatroid[T] extends Matroid[T] {
    */
   def isBasis(set: Iterable[T]): Boolean
 
+  /**
+   * check whether a given set is a basis of the dual matroid
+   *
+   * @param set set to check for basis property
+   *
+   * @return True, if set is indeed a basis of the dual of this matroid
+   */
+  def `isBasis*`(set :Iterable[T]):Boolean = {
+    val `b*` = groundSetAsSet.diff(set.toSet)
+    /* the bases of the dual matroid are the complements of the bases of the primal matroid */
+    isBasis(`b*`)
+  }
 
   /**
    * lazy baseAxiomB2Test; we always fail fast, because counterexamples come
