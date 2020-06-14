@@ -35,6 +35,53 @@ class Tests extends AnyFlatSpec with Matchers {
     )
   }
 
+  "QuasiRouting.isValid" should "work" in {
+    val good = new QuasiRouting[Int](Set(1, 2, 3), Set(1, 2, 3, 4, 5, 6), Set(1, 5, 6))
+    assert(good.isValid().passed)
+    assert((new QuasiRouting[Int](Set(1, 2, 3), Set(1, 2, 3, 4, 5, 6), Set(5, 6))).isValid().passed == false)
+    assert((new QuasiRouting[Int](Set(1, 2, 3), Set(1, 2, 3, 4, 6), Set(1, 5, 6))).isValid().passed == false)
+    assert((new QuasiRouting[Int](Set(1, 2, 3), Set(1, 3, 4, 5, 6), Set(1, 5, 6))).isValid().passed == false)
+  }
+
+  val p = QuasiPath(1 :: 2 :: 3 :: 4 :: Nil)
+  val p2 = QuasiPath(7 :: 6 :: Nil)
+  val p3 = QuasiPath(4 :: 5 :: Nil)
+
+  val q = QuasiRouting() ++ p
+  val q2 = QuasiRouting() ++ p2
+  val q3 = QuasiRouting() ++ p3
+  val q4 = QuasiRouting() ++ p2 ++ p3
+
+  "QuasiRouting.canCombine" should "work" in {
+
+    assert(q.canCombine(p2) == true)
+    assert(q.canCombine(p3) == false)
+    assert(q2.canCombine(p) == true)
+    assert(q2.canCombine(p3) == true)
+    assert(q3.canCombine(p) == false)
+    assert(q3.canCombine(p2) == true)
+
+    assert(q.canCombine(q2) == true)
+    assert(q.canCombine(q3) == false)
+    assert(q2.canCombine(q) == true)
+    assert(q2.canCombine(q3) == true)
+    assert(q3.canCombine(q) == false)
+    assert(q3.canCombine(q2) == true)
+
+    assert(q4.canCombine(q4) == false)
+    assert(q4.canCombine(q) == false)
+    assert(q4.canCombine(q2) == false)
+    assert(q4.canCombine(q3) == false)
+
+  }
+
+  "QuasiRouting.++" should "work" in {
+    assert(q.sources == Set(p.source))
+    assert(q.targets == Set(p.target))
+    assert(q.visited == p.visited)
+    assert(q2 ++ q3 == q4)
+  }
+
   "Digraph.allPaths" should "work" in {
     val paths_d = Set(
       List(1), List(1, 2), List(1, 2, 3), List(1, 2, 4),

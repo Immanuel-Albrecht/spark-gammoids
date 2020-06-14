@@ -40,14 +40,14 @@ class BasisMatroid[T](val _ground_set: Set[T],
   }
 
   override def equals(that: Any): Boolean = that match {
-    case basisMatroid: BasisMatroid[T] ⇒ {
+    case basisMatroid: traits.BasisMatroid[T] ⇒ {
       (
         basisMatroid.rank() == _rank
         ) && (
         basisMatroid.groundSetAsSet == _ground_set
-      ) && (
-        throw new Exception("TODO!") /* TODO ! */
-      )
+        ) && (
+        basisMatroid.basisFamily().toSet == _basis_family
+        )
     }
     case _ ⇒ false
   }

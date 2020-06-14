@@ -53,6 +53,16 @@ class Tests extends AnyFlatSpec with Matchers {
     )
   }
 
+  "BasisMatroid.equals" should "work" in {
+    val mk4 = NamedMatroid("MK4")
+    val m = new BasisMatroid[String](mk4.groundSet().toSet, mk4.basisFamily().toSet, mk4.rank())
+    val m2 = new BasisMatroid[String](mk4.groundSet().toSet, mk4.basisFamily().toSet ++ Set(Set("a", "b", "c")).toSet, mk4.rank())
+    /* m2 is the hyperplane-circuit relaxation of {a,b,c} in M(K4) */
+
+    assert(m == mk4)
+    assert(m2 != mk4)
+  }
+
   "BasisMatroid.isValid()" should "work" in {
     val m0 = new BasisMatroid[Int](Set(1), Set(Set()), -1)
 
