@@ -13,7 +13,8 @@ object Gammoid {
    *
    * @param d digraph (we only need its PathStructure though)
    *
-   * @param t set of targets of the gammoid
+   * @param t set of targets of the gammoid (this is actually an iterable,
+           *              some orderings may be a lot faster than others)
    *
    * @param e set of edges of the gammoid
    *
@@ -23,7 +24,7 @@ object Gammoid {
    */
   def apply[V](
                 d: PathStructure[V],
-                t: Set[V],
+                t: Iterable[V],
                 e: Set[V]): BasisMatroid[V] = {
     obtainGammoidFromRepresentationAvoiding[V](d, t, e, Set[V]())
   }

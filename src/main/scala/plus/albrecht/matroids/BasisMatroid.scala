@@ -103,7 +103,8 @@ object BasisMatroid {
    */
   def apply[T](bases : Iterable[Set[T]]) : BasisMatroid[T] = {
     val bs : Set[Set[T]] = bases.toSet
-    val groundSet: Set[T] = bs.flatMap(_.toSeq).toSet
+    val groundSet: Set[T] = bs.foldLeft(Set[T]())(_ ++ _)
+
     val rank : Int = bs.head.size
 
     new BasisMatroid[T](groundSet,bs,rank)

@@ -3,9 +3,112 @@ package plus.albrecht.matroids
 
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
+import plus.albrecht.digraphs.Digraph
 
 
 class Tests extends AnyFlatSpec with Matchers {
+
+  "Gammoid" should "return the correct matroid" in {
+    val arcs = List(("a","e"),
+      ("b","f"),
+      ("c","g"),
+      ("d","h"),
+      ("d","i"),
+      ("e","f"),
+      ("e","g"),
+      ("e","h"),
+      ("e","i"),
+      ("f","e"),
+      ("f","g"),
+      ("f","h"),
+      ("f","j"),
+      ("g","e"),
+      ("g","f"),
+      ("g","h"),
+      ("g","k"),
+      ("h","e"),
+      ("h","f"),
+      ("h","g"),
+      ("h","l"),
+      ("j","m"),
+      ("k","m"),
+      ("m","k"))
+    val targets = List("i","j","k","l","m")
+    val edges = Set("a","b","c","d","e","f","g","h","k")
+    val bases = Set(Set("a", "c", "b", "d"),
+      Set("c", "b", "e", "d"),
+      Set("a", "c", "d", "f"),
+      Set("c", "e", "d", "f"),
+      Set("a", "b", "d", "g"),
+      Set("b", "e", "d", "g"),
+      Set("a", "d", "g", "f"),
+      Set("e", "d", "g", "f"),
+      Set("a", "h", "c", "b"),
+      Set("a", "h", "b", "d"),
+      Set("a", "h", "c", "d"),
+      Set("h", "c", "b", "d"),
+      Set("h", "c", "b", "e"),
+      Set("h", "b", "e", "d"),
+      Set("h", "c", "e", "d"),
+      Set("a", "h", "c", "f"),
+      Set("a", "h", "d", "f"),
+      Set("h", "c", "d", "f"),
+      Set("h", "c", "e", "f"),
+      Set("h", "e", "d", "f"),
+      Set("a", "h", "b", "g"),
+      Set("a", "h", "d", "g"),
+      Set("h", "b", "d", "g"),
+      Set("h", "b", "e", "g"),
+      Set("h", "e", "d", "g"),
+      Set("a", "h", "g", "f"),
+      Set("h", "d", "g", "f"),
+      Set("h", "e", "g", "f"),
+      Set("a", "c", "b", "k"),
+      Set("a", "k", "b", "d"),
+      Set("a", "k", "c", "d"),
+      Set("k", "b", "c", "d"),
+      Set("c", "b", "e", "k"),
+      Set("k", "b", "e", "d"),
+      Set("k", "e", "c", "d"),
+      Set("a", "c", "k", "f"),
+      Set("a", "k", "d", "f"),
+      Set("k", "f", "c", "d"),
+      Set("c", "e", "k", "f"),
+      Set("k", "e", "d", "f"),
+      Set("a", "k", "b", "g"),
+      Set("a", "k", "d", "g"),
+      Set("k", "b", "d", "g"),
+      Set("k", "b", "e", "g"),
+      Set("k", "e", "d", "g"),
+      Set("a", "k", "g", "f"),
+      Set("k", "d", "g", "f"),
+      Set("k", "e", "g", "f"),
+      Set("a", "h", "k", "b"),
+      Set("a", "h", "c", "k"),
+      Set("h", "c", "b", "k"),
+      Set("a", "h", "k", "d"),
+      Set("h", "k", "b", "d"),
+      Set("h", "c", "d", "k"),
+      Set("h", "k", "b", "e"),
+      Set("h", "c", "e", "k"),
+      Set("h", "k", "e", "d"),
+      Set("a", "h", "k", "f"),
+      Set("h", "c", "k", "f"),
+      Set("h", "k", "d", "f"),
+      Set("h", "k", "e", "f"),
+      Set("a", "h", "k", "g"),
+      Set("h", "k", "b", "g"),
+      Set("h", "k", "d", "g"),
+      Set("h", "k", "e", "g"),
+      Set("h", "k", "g", "f"))
+    val d = Digraph(arcs)
+
+    /* verify that our algorithm is independent on the ordering of the targets */
+    targets.permutations.foreach(t ⇒ {
+      val g = Gammoid(d, t, edges)
+      assert(g.basisFamily().toSet == bases)
+    })
+  }
 
   "NamedMatroids" should "be valid" in {
     val names: Set[String] = NamedMatroid.aliasList.map({ case (_, name) ⇒ name })
