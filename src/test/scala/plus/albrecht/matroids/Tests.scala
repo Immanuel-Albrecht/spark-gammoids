@@ -107,6 +107,7 @@ class Tests extends AnyFlatSpec with Matchers {
     targets.permutations.foreach(t ⇒ {
       val g = Gammoid(d, t, edges)
       assert(g.basisFamily().toSet == bases)
+      assert(g.isValid().passed) /* counter check the isValid routine */
     })
   }
 
