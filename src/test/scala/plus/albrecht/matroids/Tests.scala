@@ -178,6 +178,7 @@ class Tests extends AnyFlatSpec with Matchers {
 
     assert(m == mk4)
     assert(m2 != mk4)
+    assert(m != 4)
   }
 
   "BasisMatroid.isValid()" should "work" in {
