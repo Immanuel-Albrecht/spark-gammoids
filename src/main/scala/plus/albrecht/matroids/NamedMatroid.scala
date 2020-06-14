@@ -29,7 +29,7 @@ object NamedMatroid {
     Set("d", "e", "f")))
 
   /** lazy loader for matroids exported from sagemath.org's sage.matroids.named_matroids */
-  lazy val from_sage : Map[String, Lazy[BasisMatroid[String]]] = {
+  lazy val from_sage: Map[String, Lazy[BasisMatroid[String]]] = {
     SageNamedMatroids.baseFamilies.map(
       {
         case (name, res) ⇒ {
@@ -58,7 +58,7 @@ object NamedMatroid {
         if (from_sage contains x) {
           from_sage(x)()
         } else
-        throw new Exception(f"Unknown matroid: ${name}.")
+          throw new Exception(f"Unknown matroid: ${name}.")
       }
     }
   }

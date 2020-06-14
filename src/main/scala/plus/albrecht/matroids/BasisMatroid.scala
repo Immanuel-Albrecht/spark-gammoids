@@ -97,17 +97,19 @@ object BasisMatroid {
   /**
    * convenience constructor
    *
-   * @param bases  a non-empty family of bases
+   * @param bases a non-empty family of bases
+   *
    * @tparam T
-   * @return  BasisMatroid
+   *
+   * @return BasisMatroid
    */
-  def apply[T](bases : Iterable[Set[T]]) : BasisMatroid[T] = {
-    val bs : Set[Set[T]] = bases.toSet
+  def apply[T](bases: Iterable[Set[T]]): BasisMatroid[T] = {
+    val bs: Set[Set[T]] = bases.toSet
     val groundSet: Set[T] = bs.foldLeft(Set[T]())(_ ++ _)
 
-    val rank : Int = bs.head.size
+    val rank: Int = bs.head.size
 
-    new BasisMatroid[T](groundSet,bs,rank)
+    new BasisMatroid[T](groundSet, bs, rank)
   }
 
 }
