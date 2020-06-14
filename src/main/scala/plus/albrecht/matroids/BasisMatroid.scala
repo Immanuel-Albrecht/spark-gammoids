@@ -1,5 +1,7 @@
 package plus.albrecht.matroids
 
+import scala.collection.GenTraversableOnce
+
 class BasisMatroid[T](val _ground_set: Set[T],
                       val _basis_family: Set[Set[T]],
                       val _rank: Int
@@ -83,6 +85,28 @@ class BasisMatroid[T](val _ground_set: Set[T],
        Remember: all inclusion maximal independent subsets of X in a matroid
        have the same cardinality and thus the greedy approach works.
      */
+  }
+
+}
+
+/**
+ * companion object
+ */
+object BasisMatroid {
+
+  /**
+   * convenience constructor
+   *
+   * @param bases  a non-empty family of bases
+   * @tparam T
+   * @return  BasisMatroid
+   */
+  def apply[T](bases : Iterable[Set[T]]) : BasisMatroid[T] = {
+    val bs : Set[Set[T]] = bases.toSet
+    val groundSet: Set[T] = bs.flatMap(_.toSeq).toSet
+    val rank : Int = bs.head.size
+
+    new BasisMatroid[T](groundSet,bs,rank)
   }
 
 }

@@ -8,11 +8,24 @@ import org.scalatest.matchers.should.Matchers
 class Tests extends AnyFlatSpec with Matchers {
 
   "NamedMatroids" should "be valid" in {
-    val names: Set[String] = NamedMatroid.aliasList.map({ case (_, name) ⇒ name }).toSet
-    names.foreach(
-      (name: String) ⇒ {
-        assert(NamedMatroid(name).isValid().passed == true)
+    val names: Set[String] = NamedMatroid.aliasList.map({ case (_, name) ⇒ name })
+      .toSet ++ NamedMatroid.from_sage.keySet
+    names.foreach({
+      case "EXTENDEDBINARYGOLAYCODE" ⇒ {
+        /* too big to test! */
       }
+      case "TERRAHAWK" ⇒ {
+        /* too big to test! */
+      }
+      case "D16" ⇒ {
+        /* too big to test! */
+      }
+      case name: String ⇒ {
+        print(s"Is ${name} valid?")
+        assert(NamedMatroid(name).isValid().passed == true)
+        println(" yes.")
+      }
+    }
     )
   }
 

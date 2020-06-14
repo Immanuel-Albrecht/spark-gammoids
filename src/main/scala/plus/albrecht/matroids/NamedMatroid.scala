@@ -1,5 +1,10 @@
 package plus.albrecht.matroids
 
+import plus.albrecht.matroids.from_sage.SageNamedMatroids
+import plus.albrecht.util.Lazy
+
+import scala.io.Source
+
 /**
  * some matroids have special names, and we keep track of them here.
  */
@@ -23,6 +28,22 @@ object NamedMatroid {
     Set("c", "e", "f"),
     Set("d", "e", "f")))
 
+  /** lazy loader for matroids exported from sagemath.org's sage.matroids.named_matroids */
+  lazy val from_sage : Map[String, Lazy[BasisMatroid[String]]] = {
+    SageNamedMatroids.baseFamilies.map(
+      {
+        case (name, res) ⇒ {
+          lazy val bases = Source.fromResource(f"from_sage/${res}")
+            .getLines()
+            .toList
+            .map(_.toList.map(_.toString).toSet)
+
+          name.toUpperCase() → Lazy(BasisMatroid(bases))
+        }
+      }
+    ).toMap
+  }
+
   val aliasList: Map[String, String] = Map(
     "MK4" → "M(K4)",
     "MK_4" → "M(K4)",
@@ -33,7 +54,12 @@ object NamedMatroid {
     val upperName = name.toUpperCase()
     aliasList.getOrElse(upperName, upperName) match {
       case "M(K4)" ⇒ mk4
-      case _ ⇒ throw new Exception(f"Unknown matroid: ${name}.")
+      case x ⇒ {
+        if (from_sage contains x) {
+          from_sage(x)()
+        } else
+        throw new Exception(f"Unknown matroid: ${name}.")
+      }
     }
   }
 }
