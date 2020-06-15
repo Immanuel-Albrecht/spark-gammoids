@@ -133,6 +133,20 @@ class Tests extends AnyFlatSpec with Matchers {
     )
   }
 
+  "SparkBasisMatroid(BasisMatroid)" should "create equivalent matroid" in {
+    val mk4 = NamedMatroid.mk4
+    val mk4s = BasisToSparkMatroid(mk4)
+
+    val mk4sb = SparkBasisMatroid(mk4s)
+    assert(mk4sb.groundSetAsSet == mk4.groundSetAsSet)
+    assert(mk4sb.basisFamily().toSet == mk4.basisFamily().toSet)
+
+    mk4.groundSetAsSet.subsets.foreach(x ⇒
+      assert(mk4.rk(x) == mk4sb.rk(x))
+    )
+
+  }
+
   "MK4.rk" should "give correct rank" in {
     val mk4 = NamedMatroid("MK4")
 
