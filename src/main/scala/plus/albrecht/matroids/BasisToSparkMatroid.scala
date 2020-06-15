@@ -2,6 +2,7 @@ package plus.albrecht.matroids
 import org.apache.spark.HashPartitioner
 import org.apache.spark.sql.{DataFrame, Row}
 import org.apache.spark.sql.types.{DataType, LongType, StructField, StructType}
+import plus.albrecht.matroids.traits.SparkMatroid
 
 import scala.reflect.ClassTag
 
@@ -18,6 +19,9 @@ class BasisToSparkMatroid[T:ClassTag](val basisMatroid: traits.BasisMatroid[T])
 
   override def elementType() : DataType = _elementType
 
+  /**
+   * store bases as indexed sets
+   */
   lazy val dfBasisFamily : DataFrame = {
     val dataSeq = basisMatroid.basisFamily().foldLeft(0L,Seq[Row]())({
       case ((id, seq), b) ⇒
@@ -34,9 +38,11 @@ class BasisToSparkMatroid[T:ClassTag](val basisMatroid: traits.BasisMatroid[T])
   }
 
   override def df(data: String): Option[DataFrame] = data match {
-    case x if x == dataBasisFamilies ⇒ Some(dfBasisFamily)
-    case _ ⇒ None
+    case x if x == SparkMatroid.dataBasisFamily ⇒ Some(dfBasisFamily)
+    case x ⇒ super.df(data)
   }
+
+
 }
 
 /** companion object */

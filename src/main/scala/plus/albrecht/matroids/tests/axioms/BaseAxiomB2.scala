@@ -19,7 +19,7 @@ import cats.implicits._
  * @tparam T matroid element class
  */
 class BaseAxiomB2[T](val M: BasisMatroid[T],
-                     val failFast: Boolean) {
+                     override val failFast: Boolean) extends traits.AxiomTest {
 
   /**
    * convenience constructor
@@ -51,7 +51,7 @@ class BaseAxiomB2[T](val M: BasisMatroid[T],
   /**
    * does it hold?
    */
-  lazy val result: TestResult = {
+  override lazy val result: TestResult = {
     /*
       (B2) If B1 and B2 are bases and x \in B1-B2, then there is some
            element y \in B2-B1 such that B1-{x}+{y} is a base

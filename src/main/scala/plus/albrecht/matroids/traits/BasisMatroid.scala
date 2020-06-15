@@ -1,6 +1,7 @@
 package plus.albrecht.matroids.traits
 
 import plus.albrecht.matroids.tests.axioms.BaseAxiomB2
+import plus.albrecht.matroids.tests.axioms.traits.AxiomTest
 import plus.albrecht.tests.TestResult
 
 /**
@@ -41,8 +42,10 @@ trait BasisMatroid[T] extends Matroid[T] {
   /**
    * lazy baseAxiomB2Test; we always fail fast, because counterexamples come
    * in flocks if they exist
+   *
+   * override this if you want a different implementation of the test
    */
-  lazy val baseAxiomB2Test = new BaseAxiomB2(this)
+  lazy val baseAxiomB2Test : AxiomTest = new BaseAxiomB2(this)
 
   /**
    * lazy test for non-negative matroid rank

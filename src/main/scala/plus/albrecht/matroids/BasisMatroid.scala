@@ -2,6 +2,14 @@ package plus.albrecht.matroids
 
 import scala.collection.GenTraversableOnce
 
+/**
+ * class that stores a matroid as a family of bases (in scala)
+ *
+ * @param _ground_set
+ * @param _basis_family
+ * @param _rank
+ * @tparam T matroid element type
+ */
 class BasisMatroid[T](val _ground_set: Set[T],
                       val _basis_family: Set[Set[T]],
                       val _rank: Int
