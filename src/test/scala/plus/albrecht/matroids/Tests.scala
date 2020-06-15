@@ -204,6 +204,27 @@ class Tests extends AnyFlatSpec with Matchers {
 
   }
 
+  "SparkBasisMatroid.isValid()" should "work" in {
+
+    val m1 = new BasisMatroid[Int](Set(1), Set(Set()), 1)
+
+    assert(SparkBasisMatroid(m1).isValid().passed == false)
+
+    val m2 = new BasisMatroid[Int](Set(1), Set(), 1)
+
+    assert(SparkBasisMatroid(m2).isValid().passed == false)
+
+    val m3 = new BasisMatroid[Int](Set(1), Set(Set(1)), 1)
+    assert(SparkBasisMatroid(m3).isValid().passed == true)
+
+    val m4 = new BasisMatroid[Int](Set(1), Set(Set(2)), 1)
+
+    assert(SparkBasisMatroid(m4).isValid().passed == false)
+
+  }
+
+  val mk4_spark = SparkBasisMatroid(NamedMatroid.mk4)
+
   "MK4" should "be the right matroid" in {
     val checkBasis: Map[Set[String], Boolean] = Map(
       Set("a", "b", "c") → false,
@@ -228,7 +249,10 @@ class Tests extends AnyFlatSpec with Matchers {
       Set("d", "e", "f") → true)
 
     checkBasis.foreach({
-      case (x, isBase) ⇒ assert(NamedMatroid.mk4.isBasis(x) == isBase)
+      case (x, isBase) ⇒ {
+        assert(NamedMatroid.mk4.isBasis(x) == isBase)
+        assert(mk4_spark.isBasis(x) == isBase)
+      }
     })
   }
 
@@ -252,6 +276,7 @@ class Tests extends AnyFlatSpec with Matchers {
       Set("d", "e", "f")))
 
     assert(not_mk4.isValid().passed == false)
+    assert(SparkBasisMatroid(not_mk4).isValid().passed == false)
   }
 
   "Unknown matroid name" should "throw" in {

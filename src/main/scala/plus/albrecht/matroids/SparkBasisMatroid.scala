@@ -11,7 +11,10 @@ import scala.reflect.ClassTag
 
 /**
  *
- * This class implements the matroid interfaces for SparkMatroids
+ * This class implements the matroid interfaces for SparkMatroids,
+ * unless the rank is zero; which would complicate a lot here and is of
+ * limited use.
+ *
  *
  * @param _ground_set the ground set of the matroid
  *
@@ -26,6 +29,7 @@ class SparkBasisMatroid[T](val _ground_set: Set[T],
                            val _rank: Int)
   extends traits.BasisMatroid[T]
     with traits.RankMatroid[T] {
+  require(_rank > 0, "the rank must be positive.")
 
   /** constructor that obtains the rank from sparkMatroid
    *
@@ -54,14 +58,14 @@ class SparkBasisMatroid[T](val _ground_set: Set[T],
    * Store a copy of the data frame; throws if not available. It's not lazy so
    * it will throw on construction if _m does not provide the basis family interface.
    */
-  val dfBasisFamilies: DataFrame = _m.df(SparkMatroid.dataBasisFamily).get
+  val dfBasisFamily: DataFrame = _m.df(SparkMatroid.dataBasisFamily).get
 
   override def groundSet(): Iterable[T] = _ground_set
 
   override def rank(): Int = _rank
 
   override def basisFamily(): Iterable[Set[T]] = {
-    dfBasisFamilies
+    dfBasisFamily
       .groupBy(SparkMatroid.colBfId)
       .agg(collect_set(SparkMatroid.colBfElement).as("output"))
       .select("output")
@@ -73,7 +77,7 @@ class SparkBasisMatroid[T](val _ground_set: Set[T],
   override def isBasis(set: Iterable[T]): Boolean = {
     val X = set.toSet
     if (X.size == _rank) {
-      X.foldLeft(dfBasisFamilies)({
+      X.foldLeft(dfBasisFamily)({
         case (df, x0) ⇒
           df /* filter out rows that correspond to elements of bases that do not have x0 */
             .filter(new ColumnName(SparkMatroid.colBfElement).isin(x0))
@@ -90,7 +94,7 @@ class SparkBasisMatroid[T](val _ground_set: Set[T],
 
     x.toSet /* We have to convert x to a set because otherwise we would
                 miscalculate the rank when an element occurs more than once!
-    */ .foldLeft((0, dfBasisFamilies))({
+    */ .foldLeft((0, dfBasisFamily))({
       case ((r0, fam0), e) ⇒
         val fam1 = fam0 /* filter all bases containing e */
           .filter(new ColumnName(SparkMatroid.colBfElement).isin(e))
@@ -129,7 +133,7 @@ class SparkBasisMatroid[T](val _ground_set: Set[T],
   /** lazy test: non-empty basis family? */
 
   override lazy val nonEmptyBasisFamilyTest: TestResult = {
-    if (dfBasisFamilies.limit(1).isEmpty)
+    if (dfBasisFamily.limit(1).isEmpty)
       TestResult(false, List("[x] Basis family is empty violating the basis existence axiom."))
     else
       TestResult(true, List("[v] There is a basis."))
@@ -138,7 +142,7 @@ class SparkBasisMatroid[T](val _ground_set: Set[T],
   /** lazy test:  have all bases the right cardinality? */
 
   override lazy val basesCardinalityTest: TestResult = {
-    val wrong = dfBasisFamilies.groupBy(SparkMatroid.colBfId)
+    val wrong = dfBasisFamily.groupBy(SparkMatroid.colBfId)
       .count.select("count")
       .filter(!new ColumnName("count").isin(rank())).count
     TestResult(wrong == 0, List(f"${if (wrong == 0) "[v]" else "[x]"} ${wrong} bases have " +
@@ -148,7 +152,7 @@ class SparkBasisMatroid[T](val _ground_set: Set[T],
   /** lazy test: are the bases all in the ground set? */
 
   override lazy val basesInMatroidTest: TestResult = {
-    val wrong = dfBasisFamilies
+    val wrong = dfBasisFamily
       .filter(!new ColumnName(SparkMatroid.colBfElement).isin(groundSet.toSeq: _*))
       .count
     TestResult(wrong == 0, List(f"${if (wrong == 0) "[v]" else "[x]"} ${wrong} base elements are " +
