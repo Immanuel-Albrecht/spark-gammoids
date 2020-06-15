@@ -30,9 +30,10 @@ class SparkBasisMatroid[T](val _ground_set: Set[T],
   /** constructor that obtains the rank from sparkMatroid
    *
    * @param groundSet
+   *
    * @param sparkMatroid
    */
-  def this(groundSet : Set[T], sparkMatroid : traits.SparkMatroid[T]) {
+  def this(groundSet: Set[T], sparkMatroid: traits.SparkMatroid[T]) {
     this(groundSet, sparkMatroid,
       sparkMatroid.df(SparkMatroid.dataRank)
         .get.select(SparkMatroid.colRkRank)
@@ -41,9 +42,9 @@ class SparkBasisMatroid[T](val _ground_set: Set[T],
 
   /** constructor that obtains both ground set and rank from sparkMatroid
    *
-   * @param sparkMatroid  loop-less matroid or matroid that implements groundSet data frame
+   * @param sparkMatroid loop-less matroid or matroid that implements groundSet data frame
    */
-  def this(sparkMatroid : traits.SparkMatroid[T]) {
+  def this(sparkMatroid: traits.SparkMatroid[T]) {
     this(sparkMatroid.df(SparkMatroid.dataGroundSet)
       .get.select(SparkMatroid.colGsElement)
       .collect().map(r ⇒ r.getAs[T](0)).toSet, sparkMatroid)
@@ -122,7 +123,7 @@ class SparkBasisMatroid[T](val _ground_set: Set[T],
    * lazy baseAxiomB2Test; we always fail fast, because counterexamples come
    * in flocks if they exist
    */
-  override lazy val baseAxiomB2Test : AxiomTest = new BaseAxiomB2Spark[T](this)
+  override lazy val baseAxiomB2Test: AxiomTest = new BaseAxiomB2Spark[T](this)
 
 
   /** lazy test: non-empty basis family? */
@@ -139,7 +140,7 @@ class SparkBasisMatroid[T](val _ground_set: Set[T],
   override lazy val basesCardinalityTest: TestResult = {
     val wrong = dfBasisFamilies.groupBy(SparkMatroid.colBfId)
       .count.select("count")
-      .filter(! new ColumnName("count").isin(rank())).count
+      .filter(!new ColumnName("count").isin(rank())).count
     TestResult(wrong == 0, List(f"${if (wrong == 0) "[v]" else "[x]"} ${wrong} bases have " +
       f"the wrong cardinality."))
   }
@@ -148,7 +149,7 @@ class SparkBasisMatroid[T](val _ground_set: Set[T],
 
   override lazy val basesInMatroidTest: TestResult = {
     val wrong = dfBasisFamilies
-      .filter(! new ColumnName(SparkMatroid.colBfElement).isin(groundSet.toSeq:_*))
+      .filter(!new ColumnName(SparkMatroid.colBfElement).isin(groundSet.toSeq: _*))
       .count
     TestResult(wrong == 0, List(f"${if (wrong == 0) "[v]" else "[x]"} ${wrong} base elements are " +
       f"non-matroid elements."))
@@ -161,46 +162,55 @@ object SparkBasisMatroid {
    * convenience constructor
    *
    * @param _ground_set
-   * @param _m   spark matroid
+   *
+   * @param _m spark matroid
+   *
    * @param _rank
+   *
    * @tparam T
-   * @return   new SparkBasisMatroid
+   *
+   * @return new SparkBasisMatroid
    */
   def apply[T](_ground_set: Set[T],
-              _m: traits.SparkMatroid[T],
-              _rank: Int) : SparkBasisMatroid[T] = new SparkBasisMatroid[T](_ground_set,_m,_rank)
+               _m: traits.SparkMatroid[T],
+               _rank: Int): SparkBasisMatroid[T] = new SparkBasisMatroid[T](_ground_set, _m, _rank)
 
   /**
    * convenience constructor
    *
    * @param _ground_set
-   * @param _m   spark matroid
-
+   *
+   * @param _m spark matroid
+   *
    * @tparam T
-   * @return   new SparkBasisMatroid
+   *
+   * @return new SparkBasisMatroid
    */
   def apply[T](_ground_set: Set[T],
-               _m: traits.SparkMatroid[T]) : SparkBasisMatroid[T] = new SparkBasisMatroid[T](_ground_set,_m)
+               _m: traits.SparkMatroid[T]): SparkBasisMatroid[T] = new SparkBasisMatroid[T](_ground_set, _m)
 
   /**
    * convenience constructor
    *
-   * @param _m   spark matroid
+   * @param _m spark matroid
    *
    * @tparam T
-   * @return   new SparkBasisMatroid
+   *
+   * @return new SparkBasisMatroid
    */
-  def apply[T](_m: traits.SparkMatroid[T]) : SparkBasisMatroid[T] = new SparkBasisMatroid[T](_m)
+  def apply[T](_m: traits.SparkMatroid[T]): SparkBasisMatroid[T] = new SparkBasisMatroid[T](_m)
 
   /**
    * convenience constructor to move BasisMatroid to Spark
    *
    * @param basisMatroid
+   *
    * @tparam T
+   *
    * @return
    */
-  def apply[T:ClassTag](basisMatroid: traits.BasisMatroid[T]) : SparkBasisMatroid[T] = {
+  def apply[T: ClassTag](basisMatroid: traits.BasisMatroid[T]): SparkBasisMatroid[T] = {
     val s = new BasisToSparkMatroid[T](basisMatroid)
-    SparkBasisMatroid[T](basisMatroid.groundSetAsSet,s,basisMatroid.rank())
+    SparkBasisMatroid[T](basisMatroid.groundSetAsSet, s, basisMatroid.rank())
   }
 }

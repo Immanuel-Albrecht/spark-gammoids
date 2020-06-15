@@ -3,9 +3,9 @@ package plus.albrecht.matroids.tests.axioms
 import plus.albrecht.matroids.SparkBasisMatroid
 import plus.albrecht.tests.TestResult
 
-class BaseAxiomB2Spark[T](val M : SparkBasisMatroid[T],
+class BaseAxiomB2Spark[T](val M: SparkBasisMatroid[T],
                           override val failFast: Boolean)
-extends traits.AxiomTest {
+  extends traits.AxiomTest {
 
   /**
    * convenience constructor

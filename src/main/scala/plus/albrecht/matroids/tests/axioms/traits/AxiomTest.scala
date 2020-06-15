@@ -10,7 +10,7 @@ trait AxiomTest {
   /**
    * Test mode
    */
-  val failFast : Boolean
+  val failFast: Boolean
 
   /**
    * does it hold? --> override this!

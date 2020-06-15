@@ -45,7 +45,7 @@ trait BasisMatroid[T] extends Matroid[T] {
    *
    * override this if you want a different implementation of the test
    */
-  lazy val baseAxiomB2Test : AxiomTest = new BaseAxiomB2(this)
+  lazy val baseAxiomB2Test: AxiomTest = new BaseAxiomB2(this)
 
   /**
    * lazy test for non-negative matroid rank

@@ -45,7 +45,6 @@ trait SparkMatroid[T] {
     StructField(SparkMatroid.colRkRank, getSparkType[Int](), false) :: Nil)
 
 
-
   /**
    * schema for storing the groundSet
    */
@@ -86,7 +85,7 @@ trait SparkMatroid[T] {
       val dfB = this.df(SparkMatroid.dataBasisFamily)
       if (dfB.isDefined) {
         val df = dfB.get
-        val first_id = df.limit(1).select(SparkMatroid.colBfId).collect.map(r=>r.get(0)).head
+        val first_id = df.limit(1).select(SparkMatroid.colBfId).collect.map(r => r.get(0)).head
         val rdd = spark().sparkContext.parallelize(
           Seq(Row(df.filter(new ColumnName(SparkMatroid.colBfId).isin(first_id))
             .distinct.count.intValue())))
