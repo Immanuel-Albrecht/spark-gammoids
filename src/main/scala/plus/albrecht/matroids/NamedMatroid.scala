@@ -10,6 +10,9 @@ import scala.io.Source
  */
 object NamedMatroid {
 
+  /**
+   * M(K4), an important excluded minor for the family of gammoids.
+   */
   lazy val mk4 = new BasisMatroid[String](Set(
     Set("a", "b", "d"),
     Set("a", "b", "e"),
@@ -44,12 +47,19 @@ object NamedMatroid {
     ).toMap
   }
 
+  /** allow for multiple ways to refer to the same matroid */
   val aliasList: Map[String, String] = Map(
     "MK4" → "M(K4)",
     "MK_4" → "M(K4)",
     "M(K_4)" → "M(K4)"
   )
 
+  /**
+   * Get a well-known matroid from its name.
+   *
+   * @param name     which matroid
+   * @return      a BasisMatroid representation of the given matroid
+   */
   def apply(name: String): BasisMatroid[String] = {
     val upperName = name.toUpperCase()
     aliasList.getOrElse(upperName, upperName) match {
@@ -61,5 +71,21 @@ object NamedMatroid {
           throw new Exception(f"Unknown matroid: ${name}.")
       }
     }
+  }
+
+  /**
+   * here we store a list of big matroid names (after aliasing)
+   */
+  lazy val bigMatroidNames = {SageNamedMatroids.bigMatroids.map(_.toUpperCase())}
+
+  /**
+   * Tells you whether a named matroid is considered to be big.
+   *
+   * @param name   which matroid
+   * @return
+   */
+  def isBig(name : String) : Boolean = {
+    val upperName = name.toUpperCase()
+    bigMatroidNames contains aliasList.getOrElse(upperName, upperName)
   }
 }

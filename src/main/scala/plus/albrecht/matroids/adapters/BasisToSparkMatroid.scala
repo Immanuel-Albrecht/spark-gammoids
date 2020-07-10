@@ -1,8 +1,8 @@
-package plus.albrecht.matroids
+package plus.albrecht.matroids.adapters
 
-import org.apache.spark.HashPartitioner
+import org.apache.spark.sql.types.DataType
 import org.apache.spark.sql.{DataFrame, Row}
-import org.apache.spark.sql.types.{DataType, LongType, StructField, StructType}
+import plus.albrecht.matroids.traits
 import plus.albrecht.matroids.traits.SparkMatroid
 
 import scala.reflect.ClassTag
@@ -13,12 +13,8 @@ import scala.reflect.ClassTag
  * @tparam T matroid element type
  */
 class BasisToSparkMatroid[T: ClassTag](val basisMatroid: traits.BasisMatroid[T])
-  extends traits.SparkMatroid[T] {
+  extends DataFrameSparkMatroid[T] {
 
-  /** matroid element type */
-  lazy val _elementType = getSparkType[T]()
-
-  override def elementType(): DataType = _elementType
 
   /**
    * store bases as indexed sets
@@ -38,9 +34,28 @@ class BasisToSparkMatroid[T: ClassTag](val basisMatroid: traits.BasisMatroid[T])
       basisFamilySchema)
   }
 
-  override def df(data: String): Option[DataFrame] = data match {
-    case x if x == SparkMatroid.dataBasisFamily ⇒ Some(dfBasisFamily)
-    case x ⇒ super.df(data)
+  /**
+   * store ground set
+   */
+
+    lazy val dfGroundSet : DataFrame = {
+      val dataSeq = basisMatroid.groundSetAsSet.map(Row(_)).toSeq
+
+      val rdd = spark().sparkContext.parallelize(dataSeq)
+      /* TODO: this would be a place where we could add some kind of partitioning
+             control
+      */
+
+      spark().createDataFrame(rdd, groundSetSchema)
+    }
+
+  /**
+   * store the rank
+   */
+  lazy val dfRank : DataFrame = {
+    val dataSeq = Seq(Row(basisMatroid.rank()))
+    val rdd = spark().sparkContext.parallelize(dataSeq)
+    spark().createDataFrame(rdd, rankSchema)
   }
 
 

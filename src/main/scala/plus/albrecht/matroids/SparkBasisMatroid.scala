@@ -3,6 +3,7 @@ package plus.albrecht.matroids
 import org.apache.spark.sql.{ColumnName, DataFrame}
 import plus.albrecht.matroids.traits.SparkMatroid
 import org.apache.spark.sql.functions.collect_set
+import plus.albrecht.matroids.adapters.BasisToSparkMatroid
 import plus.albrecht.matroids.tests.axioms.BaseAxiomB2Spark
 import plus.albrecht.matroids.tests.axioms.traits.AxiomTest
 import plus.albrecht.tests.TestResult

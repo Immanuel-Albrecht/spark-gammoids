@@ -2,6 +2,16 @@ package plus.albrecht.matroids.from_sage
 
 /** This object contains the named matroids from the SageMATH project (sagemath.org). */
 object SageNamedMatroids {
+
+  /**
+   * We consider these matroids to be rather big.
+   */
+  val bigMatroids = Set[String]("ExtendedBinaryGolayCode","Terrahawk","D16")
+
+
+  /**
+   * map matroid names to file names where their base families are stored.
+   */
   val baseFamilies = Map[String, String](
     "AG23-" -> "AG23minus.bases.txt",
     "AG32'" -> "AG32prime.bases.txt",

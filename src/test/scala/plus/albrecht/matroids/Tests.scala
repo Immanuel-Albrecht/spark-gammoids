@@ -4,6 +4,7 @@ package plus.albrecht.matroids
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 import plus.albrecht.digraphs.Digraph
+import plus.albrecht.matroids.adapters.BasisToSparkMatroid
 
 
 class Tests extends AnyFlatSpec with Matchers {
@@ -115,19 +116,16 @@ class Tests extends AnyFlatSpec with Matchers {
     val names: Set[String] = NamedMatroid.aliasList.map({ case (_, name) ⇒ name })
       .toSet ++ NamedMatroid.from_sage.keySet
     names.foreach({
-      case "EXTENDEDBINARYGOLAYCODE" ⇒ {
-        /* too big to test! */
-      }
-      case "TERRAHAWK" ⇒ {
-        /* too big to test! */
-      }
-      case "D16" ⇒ {
-        /* too big to test! */
-      }
       case name: String ⇒ {
-        print(s"Is ${name} valid?")
-        assert(NamedMatroid(name).isValid().passed == true)
-        println(" yes.")
+
+        if (NamedMatroid.isBig(name)) {
+          println(s"${name} is big. Validity test skipped.")
+        } else {
+
+          print(s"Is ${name} valid?")
+          assert(NamedMatroid(name).isValid().passed == true)
+          println(" yes.")
+        }
       }
     }
     )
