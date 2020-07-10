@@ -48,7 +48,7 @@ class BaseAxiomB2Spark[T](val M: SparkBasisMatroid[T],
       * basis on a node */
     val dfBases = (M.dfBasisFamily
       .groupBy(SparkMatroid.colBfId)
-      .agg(collect_set(SparkMatroid.colBfElement).as("B1"))
+      .agg(sort_array(collect_set(SparkMatroid.colBfElement)).as("B1"))
       .select("B1"))
 
     val B1 = new ColumnName("B1")
@@ -70,27 +70,51 @@ class BaseAxiomB2Spark[T](val M: SparkBasisMatroid[T],
 
     val dfB1B2xB3 = (
       dfB1B2xy
-        .withColumn("B3", array_union(array_remove(B1, x), array(y)))
+        .withColumn(
+          "B3",
+          sort_array(array_union(array_remove(B1, x), array(y)))
+        )
         .select(B1, B2, x, B3)
       )
 
+    val valid = new ColumnName("valid")
+
     val dfB1B2xB3_valid =
-      dfB1B2xB3.join(dfBases.withColumnRenamed("B1", "B3"), Seq("B3"), "left")
+      dfB1B2xB3
+        .join(
+          dfBases
+            .withColumnRenamed("B1", "B3")
+            .withColumn("isBase", lit(1)),
+          Seq("B3"),
+          "left"
+        )
+        .withColumn(
+          "valid",
+          when(new ColumnName("isBase").isNotNull, lit(1)).otherwise(lit(0))
+        )
+        .select(B1, B2, x, valid)
+        .groupBy(B1, B2, x)
+        .agg(sum(valid).as("valid"))
 
-    val dfB1B2x_count =
-      dfB1B2xB3_valid.groupBy(B1, B2, x).agg(count(B3).as("nbr"))
-
-    val counter_ex = dfB1B2x_count.filter(new ColumnName("nbr") === 0)
-
-    //counter_ex.show()
+    val counter_ex =
+      dfB1B2xB3_valid
+        .filter(valid === 0)
+        .select(B1, B2, x)
+        .cache()
 
     val wrong = (if (failFast) counter_ex.limit(1) else counter_ex).count
 
-    if (wrong == 0)
-      TestResult("[v] axiom (B2) holds.")
-    else
-      TestResult(
-        s"[x] There are ${if (failFast) "at least " else ""}${wrong} counter-examples to (B2)."
-      )
+    val result =
+      if (wrong == 0)
+        TestResult("[v] axiom (B2) holds.")
+      else
+        TestResult(
+          s"[x] There are ${if (failFast) "at least " else ""}${wrong} counter-examples to (B2)." +
+            s" Counter-Example: ${counter_ex.head.toString} = [B1,B2,x]"
+        )
+
+    counter_ex.unpersist()
+
+    result
   }
 }
