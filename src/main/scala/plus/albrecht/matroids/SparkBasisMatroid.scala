@@ -1,12 +1,14 @@
 package plus.albrecht.matroids
 
-import org.apache.spark.sql.{ColumnName, DataFrame}
+import org.apache.spark.sql.{Column, ColumnName, DataFrame, Row}
 import plus.albrecht.matroids.traits.SparkMatroid
 import org.apache.spark.sql.functions.collect_set
 import plus.albrecht.matroids.adapters.BasisToSparkMatroid
 import plus.albrecht.matroids.tests.axioms.BaseAxiomB2Spark
 import plus.albrecht.matroids.tests.axioms.traits.AxiomTest
 import plus.albrecht.tests.TestResult
+import org.apache.spark.sql.functions.{count, max}
+import org.apache.spark.sql.types.IntegerType
 
 import scala.reflect.ClassTag
 
@@ -15,7 +17,6 @@ import scala.reflect.ClassTag
  * This class implements the matroid interfaces for SparkMatroids,
  * unless the rank is zero; which would complicate a lot here and is of
  * limited use.
- *
  *
  * @param _ground_set the ground set of the matroid
  *
@@ -88,40 +89,41 @@ class SparkBasisMatroid[T](val _ground_set: Set[T],
     } else false
   }
 
+  /**
+   *
+   * @param x set of matroid elements
+   *
+   * @return the rank of the set x
+   */
   override def rk(x: Iterable[T]): Int = {
-    /* the rank of x is the maximal cardinality of the intersection of x
-       with any of the bases of the matroid */
-
-
-    x.toSet /* We have to convert x to a set because otherwise we would
-                miscalculate the rank when an element occurs more than once!
-    */ .foldLeft((0, dfBasisFamily))({
-      case ((r0, fam0), e) ⇒
-        val fam1 = fam0 /* filter all bases containing e */
-          .filter(new ColumnName(SparkMatroid.colBfElement).isin(e))
-          .select(SparkMatroid.colBfId)
-          .join(fam0, SparkMatroid.colBfId)
-
-        if (fam1.isEmpty) {
-          /* e is in the closure of the previous elements */
-          (r0, fam0)
-        } else {
-          /* e is not in the closure */
-          (r0 + 1, fam1)
-        }
-    })._1
-    /* So, how exactly does this work, one might ask?
-       The above fold operation implicitly determines a maximal independent
-       subset of x; which is the set consisting of those elements that
-       reach 'e is not in the closure'. In the tuple (r0,fam0), r0 keeps track
-       of the cardinality of the implicit maximal independent set with respect
-       to all previous elements, and fam0 keeps track of all bases that contain
-       this implicit set. So fam1 clearly consists of those bases of fam0
-       that also contain e.
-
-       Remember: all inclusion maximal independent subsets of X in a matroid
-       have the same cardinality and thus the greedy approach works.
+    /**
+     * we take the base df, remove all elements that are not in x,
+     * group by the basis id, then count, and then max. This way, we get
+     * the maximal cardinality of an independent set in x -- its rank.
      */
+
+    val xs: Seq[Any] = x.toSet.toSeq
+
+    val filter_expression: Column = new ColumnName(SparkMatroid.colBfElement).isin(xs: _*)
+
+    val rank_or_null = _m.df(SparkMatroid.dataBasisFamily).get
+      .filter(filter_expression)
+      .groupBy(SparkMatroid.colBfId)
+      .agg(count(new ColumnName(SparkMatroid.colBfElement)).as("subrank"))
+      .groupBy()
+      .agg(max(new ColumnName("subrank")).as("rank").cast(IntegerType))
+      .collect()
+      .head
+
+    if (rank_or_null.isNullAt(0))
+      /* if we end up in this branch, then the set xs consists only of loops,
+         thus the dataframe after the filter expression is already empty.
+         Clearly, the rank of such a set is zero.
+       */
+      0
+    else
+      rank_or_null.getInt(0)
+
   }
 
   /**

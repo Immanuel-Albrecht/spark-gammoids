@@ -1,9 +1,7 @@
 package plus.albrecht.run
 
-
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
-
 
 class Tests extends AnyFlatSpec with Matchers {
 
@@ -13,6 +11,10 @@ class Tests extends AnyFlatSpec with Matchers {
 
   "TestMain" should "not fail with --unit-test" in {
     TestMain.main(Array("--unit-test"))
+  }
+
+  "IsNamedMatroidVaild" should "not fail on P8pp" in {
+    IsNamedMatroidValid.main(Array("P8pp"))
   }
 
   "Config" should "work as expected" in {
@@ -45,8 +47,12 @@ class Tests extends AnyFlatSpec with Matchers {
     assert((Config() ++ "lower" ++ "aux" -- "lower") >> "b" === Some("_"))
     assert((Config() ++ "lower" ++ "aux" ^ Set("upper")) >> "b" === Some("B"))
     assert((Config() ++ Set("lower", "aux") -- "lower") >> "c" === Some("_"))
-    assert((Config() ++ Set("upper", "aux") -- "lower" -- "aux") >> "c" === Some("C"))
-    assert((Config() ++ Set("upper", "aux") -- Set("upper", "aux") >> "c" === None))
+    assert(
+      (Config() ++ Set("upper", "aux") -- "lower" -- "aux") >> "c" === Some("C")
+    )
+    assert(
+      (Config() ++ Set("upper", "aux") -- Set("upper", "aux") >> "c" === None)
+    )
 
   }
 }

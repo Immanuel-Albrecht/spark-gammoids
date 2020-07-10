@@ -30,6 +30,9 @@ libraryDependencies += "org.scalactic" %% "scalactic" % "3.1.2"
 // Unit Tests
 libraryDependencies += "org.scalatest" %% "scalatest" % "3.1.2" % Test
 
+testOptions in Test += Tests.Argument(TestFrameworks.ScalaTest, "-oNCXELOPQRM")
+
+
 // Cats
 scalacOptions += "-Ypartial-unification"
 libraryDependencies += "org.typelevel" %% "cats-core" % "2.1.1"

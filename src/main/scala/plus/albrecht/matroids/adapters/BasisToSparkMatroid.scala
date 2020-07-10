@@ -31,7 +31,7 @@ class BasisToSparkMatroid[T: ClassTag](val basisMatroid: traits.BasisMatroid[T])
     */
 
     spark().createDataFrame(rdd,
-      basisFamilySchema)
+      basisFamilySchema).cache()
   }
 
   /**
@@ -46,7 +46,7 @@ class BasisToSparkMatroid[T: ClassTag](val basisMatroid: traits.BasisMatroid[T])
              control
       */
 
-      spark().createDataFrame(rdd, groundSetSchema)
+      spark().createDataFrame(rdd, groundSetSchema).cache()
     }
 
   /**
@@ -55,7 +55,7 @@ class BasisToSparkMatroid[T: ClassTag](val basisMatroid: traits.BasisMatroid[T])
   lazy val dfRank : DataFrame = {
     val dataSeq = Seq(Row(basisMatroid.rank()))
     val rdd = spark().sparkContext.parallelize(dataSeq)
-    spark().createDataFrame(rdd, rankSchema)
+    spark().createDataFrame(rdd, rankSchema).cache()
   }
 
 
