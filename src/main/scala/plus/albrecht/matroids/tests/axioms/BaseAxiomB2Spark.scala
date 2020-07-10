@@ -102,7 +102,10 @@ class BaseAxiomB2Spark[T](val M: SparkBasisMatroid[T],
         .select(B1, B2, x)
         .cache()
 
-    val wrong = (if (failFast) counter_ex.limit(1) else counter_ex).count
+    val fast_counter_ex =
+      (if (failFast) counter_ex.limit(1) else counter_ex).cache()
+
+    val wrong = fast_counter_ex.count
 
     val result =
       if (wrong == 0)
@@ -110,10 +113,10 @@ class BaseAxiomB2Spark[T](val M: SparkBasisMatroid[T],
       else
         TestResult(
           s"[x] There are ${if (failFast) "at least " else ""}${wrong} counter-examples to (B2)." +
-            s" Counter-Example: ${counter_ex.head.toString} = [B1,B2,x]"
+            s" Counter-Example: ${fast_counter_ex.head.toString} = [B1,B2,x]"
         )
 
-    counter_ex.unpersist()
+    fast_counter_ex.unpersist()
 
     result
   }
