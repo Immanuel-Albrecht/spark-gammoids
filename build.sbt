@@ -2,7 +2,8 @@ name := "spark-gammoids"
 
 version := "0.1"
 
-scalaVersion := "2.12.8"
+/* obtain scala version from env, use 2.12.8 as default (google dataproc-1.5 image) */
+scalaVersion := sys.env.get("SCALA_VERSION").getOrElse("2.12.8")
 
 resolvers += Resolver.bintrayIvyRepo("com.eed3si9n", "sbt-plugins")
 resolvers += "Artima Maven Repository" at "https://repo.artima.com/releases"
@@ -14,7 +15,8 @@ logBuffered in Test := false
 
 enablePlugins(SparkPlugin)
 
-sparkVersion := "2.4.5"
+/* obtain spark version from env, use 2.4.5 as default (google dataproc-1.5 image) */
+sparkVersion := sys.env.get("SPARK_VERSION").getOrElse("2.4.5")
 
 // Spark
 libraryDependencies += "org.apache.spark" %% "spark-core" % sparkVersion.value % Provided
@@ -32,17 +34,14 @@ libraryDependencies += "org.scalatest" %% "scalatest" % "3.1.2" % Test
 
 testOptions in Test += Tests.Argument(TestFrameworks.ScalaTest, "-oNCXELOPQRM")
 
-
-// Cats
-scalacOptions += "-Ypartial-unification"
-libraryDependencies += "org.typelevel" %% "cats-core" % "2.1.1"
-
+// Cats -- we don't use it right now.
+// scalacOptions += "-Ypartial-unification"
+// libraryDependencies += "org.typelevel" %% "cats-core" % "2.1.1"
 
 // A bunch of libraries that may become handy when handling graphs
 //libraryDependencies += "org.scala-graph" %% "graph-core" % "1.12.5"
 //libraryDependencies += "org.jgrapht" % "jgrapht-core" % "1.4.0"
 //libraryDependencies += "org.jgrapht" % "jgrapht-ext" % "1.4.0"
-
 
 // Chemistry Development Kit: Chemists love graph isomorphism problems, too
 // https://mvnrepository.com/artifact/org.openscience.cdk/cdk-bundle
@@ -51,8 +50,8 @@ libraryDependencies += "org.typelevel" %% "cats-core" % "2.1.1"
 /* fix some issues on assembly */
 
 assemblyMergeStrategy in assembly := {
-  case "log4j.properties"                          => MergeStrategy.concat
-  case "header.txt"                                => MergeStrategy.discard
+  case "log4j.properties" => MergeStrategy.concat
+  case "header.txt"       => MergeStrategy.discard
   case x =>
     val oldStrategy = (assemblyMergeStrategy in assembly).value
     oldStrategy(x)
