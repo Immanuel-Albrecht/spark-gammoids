@@ -42,7 +42,7 @@ object NamedMatroid {
       .map({
         case (name, res) ⇒ {
           lazy val stream: InputStream =
-            getClass.getResourceAsStream(f"from_sage/${res}")
+            getClass.getResourceAsStream(f"/from_sage/${res}")
           /* lazy val resource = Source.fromResource(f"from_sage/${res}") // scala 2.12+ only */
           lazy val resource = scala.io.Source.fromInputStream(stream)
           lazy val bases = resource
