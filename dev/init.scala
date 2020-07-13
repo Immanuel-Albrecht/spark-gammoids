@@ -3,8 +3,10 @@ import plus.albrecht.matroids._
 import plus.albrecht.digraphs._
 import org.apache.spark.sql.ColumnName
 import plus.albrecht.digraphs._
+import plus.albrecht.digraphs.spark._
 import plus.albrecht.digraphs.traits._
-import plus.albrecht.matroids.spark.traits.SparkMatroid
+import plus.albrecht.matroids.spark._
+import plus.albrecht.matroids.spark.traits._
 
 def getSize(x : AnyRef) = org.apache.spark.util.SizeEstimator.estimate(x)
 
@@ -29,3 +31,5 @@ lazy val not_mk4 = new BasisMatroid[String](Set(
 lazy val M = SparkBasisMatroid(not_mk4)
 
 lazy val MK4 = SparkBasisMatroid(NamedMatroid("M(K4)"))
+
+

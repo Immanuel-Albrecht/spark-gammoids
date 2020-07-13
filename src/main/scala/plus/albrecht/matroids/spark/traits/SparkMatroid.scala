@@ -3,6 +3,7 @@ package plus.albrecht.matroids.spark.traits
 import org.apache.spark.sql.types._
 import org.apache.spark.sql.{ColumnName, DataFrame, Row, SparkSession}
 import plus.albrecht.run.Spark
+import plus.albrecht.util.spark.Types
 
 import scala.reflect.{ClassTag, classTag}
 
@@ -23,7 +24,7 @@ trait SparkMatroid[T] {
    * schema for storing the basisFamily
    */
   lazy val basisFamilySchema = StructType(
-    StructField(SparkMatroid.colBfId, SparkMatroid.getSparkType[Long](), false) ::
+    StructField(SparkMatroid.colBfId, Types.getSparkType[Long](), false) ::
       StructField(SparkMatroid.colBfElement, elementType, false) :: Nil
   )
 
@@ -94,26 +95,6 @@ object SparkMatroid {
   /** string for requesting the rank data frame */
   val dataRank = "rank"
 
-  /**
-   * We use this method to obtain the correct StructTypes for different Scala
-   * classes.
-   *
-   * @param name class name, obtain by classOf[...].toString
-   *
-   * @return DataType object corresponding to X
-   */
-  def getSparkType(name: String): DataType = name match {
-    case x if x == classOf[Int].toString ⇒ IntegerType
-    case x if x == classOf[Long].toString ⇒ LongType
-    case x if x == classOf[String].toString ⇒ StringType
-    case x if x == classOf[Float].toString ⇒ FloatType
-    case x if x == classOf[Double].toString ⇒ DoubleType
-    case x if x == classOf[Boolean].toString ⇒ BooleanType
-    case x ⇒
-      throw new Exception(
-        s"Matroid element class ${x} is not supported on spark!"
-      )
-  }
 
   /**
    *
@@ -160,19 +141,12 @@ object SparkMatroid {
     spark.createDataFrame(rdd, rankSchema).cache()
   }
 
-  /**
-   *
-   * @tparam X class
-   *
-   * @return DataType corresponding to X
-   */
-  def getSparkType[X: ClassTag](): DataType =
-    SparkMatroid.getSparkType(classTag[X].runtimeClass.toString)
+
 
   /**
    * the rank schema is the same for every matroid regardless of element type
    */
   lazy val rankSchema = StructType(
-    StructField(SparkMatroid.colRkRank, getSparkType[Int](), false) :: Nil
+    StructField(SparkMatroid.colRkRank, Types.getSparkType[Int](), false) :: Nil
   )
 }

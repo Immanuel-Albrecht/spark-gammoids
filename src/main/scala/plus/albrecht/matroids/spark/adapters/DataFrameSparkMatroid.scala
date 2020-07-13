@@ -3,6 +3,7 @@ package plus.albrecht.matroids.spark.adapters
 import org.apache.spark.sql.DataFrame
 import org.apache.spark.sql.types.DataType
 import plus.albrecht.matroids.spark.traits.SparkMatroid
+import plus.albrecht.util.spark.Types
 
 import scala.reflect.ClassTag
 
@@ -15,7 +16,7 @@ import scala.reflect.ClassTag
 abstract class DataFrameSparkMatroid[T: ClassTag]() extends SparkMatroid[T] {
 
   /** matroid element type */
-  lazy val _elementType = SparkMatroid.getSparkType[T]()
+  lazy val _elementType = Types.getSparkType[T]()
 
   override def elementType(): DataType = _elementType
 
