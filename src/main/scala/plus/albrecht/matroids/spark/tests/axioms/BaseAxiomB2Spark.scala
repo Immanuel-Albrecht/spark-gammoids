@@ -23,16 +23,6 @@ class BaseAxiomB2Spark[T](val M: SparkBasisMatroid[T],
   /**
    * does it hold?
    *
-   * Well, also, rework this; it's probably quite wrong:
-   *
-   * Is P8pp valid? no
-   * Report:
-   * =======
-   * [v] 4 is a valid rank.
-   * [v] There is a basis.
-   * [v] 0 bases have the wrong cardinality.
-   * [v] 0 base elements are non-matroid elements.
-   * [x] There are at least 1 counter-examples to (B2).
    **/
   override lazy val result: TestResult = {
 
