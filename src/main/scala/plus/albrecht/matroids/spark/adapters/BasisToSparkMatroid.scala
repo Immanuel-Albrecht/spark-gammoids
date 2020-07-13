@@ -1,9 +1,7 @@
-package plus.albrecht.matroids.adapters
+package plus.albrecht.matroids.spark.adapters
 
-import org.apache.spark.sql.types.DataType
 import org.apache.spark.sql.{DataFrame, Row}
 import plus.albrecht.matroids.traits
-import plus.albrecht.matroids.traits.SparkMatroid
 
 import scala.reflect.ClassTag
 
@@ -38,21 +36,21 @@ class BasisToSparkMatroid[T: ClassTag](val basisMatroid: traits.BasisMatroid[T])
    * store ground set
    */
 
-    lazy val dfGroundSet : DataFrame = {
-      val dataSeq = basisMatroid.groundSetAsSet.map(Row(_)).toSeq
+  lazy val dfGroundSet: DataFrame = {
+    val dataSeq = basisMatroid.groundSetAsSet.map(Row(_)).toSeq
 
-      val rdd = spark().sparkContext.parallelize(dataSeq)
-      /* TODO: this would be a place where we could add some kind of partitioning
-             control
-      */
+    val rdd = spark().sparkContext.parallelize(dataSeq)
+    /* TODO: this would be a place where we could add some kind of partitioning
+           control
+    */
 
-      spark().createDataFrame(rdd, groundSetSchema).cache()
-    }
+    spark().createDataFrame(rdd, groundSetSchema).cache()
+  }
 
   /**
    * store the rank
    */
-  lazy val dfRank : DataFrame = {
+  lazy val dfRank: DataFrame = {
     val dataSeq = Seq(Row(basisMatroid.rank()))
     val rdd = spark().sparkContext.parallelize(dataSeq)
     spark().createDataFrame(rdd, rankSchema).cache()

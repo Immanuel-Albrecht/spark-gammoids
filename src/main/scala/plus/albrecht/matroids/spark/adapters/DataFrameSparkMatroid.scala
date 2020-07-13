@@ -1,17 +1,17 @@
-package plus.albrecht.matroids.adapters
+package plus.albrecht.matroids.spark.adapters
 
 import org.apache.spark.sql.DataFrame
 import org.apache.spark.sql.types.DataType
-import plus.albrecht.matroids.traits.SparkMatroid
+import plus.albrecht.matroids.spark.traits.SparkMatroid
 
 import scala.reflect.ClassTag
 
 /**
-  * Provides an abstract class for implementations of the SparkMatroid interface
-  * with lazy data frames
-  *
-  * @tparam T   matroid element type
-  */
+ * Provides an abstract class for implementations of the SparkMatroid interface
+ * with lazy data frames
+ *
+ * @tparam T matroid element type
+ */
 abstract class DataFrameSparkMatroid[T: ClassTag]() extends SparkMatroid[T] {
 
   /** matroid element type */
@@ -20,18 +20,18 @@ abstract class DataFrameSparkMatroid[T: ClassTag]() extends SparkMatroid[T] {
   override def elementType(): DataType = _elementType
 
   /**
-    * store bases as indexed sets
-    */
+   * store bases as indexed sets
+   */
   val dfBasisFamily: DataFrame
 
   /**
-    * store ground set
-    */
+   * store ground set
+   */
   val dfGroundSet: DataFrame
 
   /**
-    * store the rank
-    */
+   * store the rank
+   */
   val dfRank: DataFrame
 
   override def df(data: String): Option[DataFrame] = data match {

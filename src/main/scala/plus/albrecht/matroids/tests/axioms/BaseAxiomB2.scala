@@ -4,31 +4,31 @@ import plus.albrecht.matroids.traits.BasisMatroid
 import plus.albrecht.tests.TestResult
 
 /**
-  * This class implements a test whether the basis exchange axiom
-  * (B2) [p. 17 in Oxley's Matroid Theory] holds.
-  *
-  * @param M        basis matroid under consideration
-  *
-  * @param failFast we recommend to set this to true
-  *
-  * @tparam T matroid element class
-  */
+ * This class implements a test whether the basis exchange axiom
+ * (B2) [p. 17 in Oxley's Matroid Theory] holds.
+ *
+ * @param M        basis matroid under consideration
+ *
+ * @param failFast we recommend to set this to true
+ *
+ * @tparam T matroid element class
+ */
 class BaseAxiomB2[T](val M: BasisMatroid[T], override val failFast: Boolean)
-    extends traits.AxiomTest {
+  extends traits.AxiomTest {
 
   /**
-    * convenience constructor
-    *
-    * @param m basis matroid under consideration
-    */
+   * convenience constructor
+   *
+   * @param m basis matroid under consideration
+   */
   def this(m: BasisMatroid[T]) {
     this(m, true)
   }
 
   /**
-    * this object maps bases of hyperplanes to elements outside
-    * of the spanned hyperplane
-    */
+   * this object maps bases of hyperplanes to elements outside
+   * of the spanned hyperplane
+   */
   lazy val hypo_bases: Map[Set[T], Set[T]] = {
     M.basisFamily()
       .foldLeft[Map[Set[T], Set[T]]](Map())({
@@ -43,8 +43,8 @@ class BaseAxiomB2[T](val M: BasisMatroid[T], override val failFast: Boolean)
   }
 
   /**
-    * does it hold?
-    */
+   * does it hold?
+   */
   override lazy val result: TestResult = {
     /*
       (B2) If B1 and B2 are bases and x \in B1-B2, then there is some
@@ -75,15 +75,17 @@ class BaseAxiomB2[T](val M: BasisMatroid[T], override val failFast: Boolean)
                         if (failFast && (!errors.isEmpty)) errors
                         else {
                           if (hypo_bases
-                                .getOrElse(b1 - x, Set[T]())
-                                .intersect(inElements)
-                                .isEmpty) {
+                            .getOrElse(b1 - x, Set[T]())
+                            .intersect(inElements)
+                            .isEmpty) {
                             /* there is no candidate that extends b1-x to another base */
                             errors ++ List(
                               f"[x] ${b1} - ${x} has no candidate in ${inElements}" +
                                 f" " +
-                                f"to make another basis. [Augmentation-List: ${hypo_bases
-                                  .getOrElse(b1 - x, Set[T]())}]"
+                                f"to make another basis. [Augmentation-List: ${
+                                  hypo_bases
+                                    .getOrElse(b1 - x, Set[T]())
+                                }]"
                             )
                           } else errors
                         }

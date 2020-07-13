@@ -1,13 +1,21 @@
 package plus.albrecht.matroids
 
 
+import org.scalatest.{BeforeAndAfter, BeforeAndAfterAll}
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 import plus.albrecht.digraphs.Digraph
-import plus.albrecht.matroids.adapters.BasisToSparkMatroid
+import plus.albrecht.matroids.spark.SparkBasisMatroid
+import plus.albrecht.matroids.spark.adapters.BasisToSparkMatroid
+import plus.albrecht.run.Config
 
 
-class Tests extends AnyFlatSpec with Matchers {
+class Tests extends AnyFlatSpec with Matchers with BeforeAndAfterAll {
+
+  override protected def beforeAll(): Unit = {
+    Config(x ⇒ x.setTagSet(Set("spark")).set("master","local[4]").set("app-name","matroids.Tests"))
+  }
+
 
   "Gammoid" should "return the correct matroid" in {
     val arcs = List(("a", "e"),

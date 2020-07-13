@@ -1,14 +1,14 @@
-package plus.albrecht.matroids
+package plus.albrecht.matroids.spark
 
-import org.apache.spark.sql.{Column, ColumnName, DataFrame, Row}
-import plus.albrecht.matroids.traits.SparkMatroid
-import org.apache.spark.sql.functions.collect_set
-import plus.albrecht.matroids.adapters.BasisToSparkMatroid
-import plus.albrecht.matroids.tests.axioms.BaseAxiomB2Spark
-import plus.albrecht.matroids.tests.axioms.traits.AxiomTest
-import plus.albrecht.tests.TestResult
-import org.apache.spark.sql.functions.{count, max}
+import org.apache.spark.sql.functions.{collect_set, count, max}
 import org.apache.spark.sql.types.IntegerType
+import org.apache.spark.sql.{Column, ColumnName, DataFrame}
+import plus.albrecht.matroids.spark.adapters.BasisToSparkMatroid
+import plus.albrecht.matroids.spark.tests.axioms.BaseAxiomB2Spark
+import plus.albrecht.matroids.spark.traits.SparkMatroid
+import plus.albrecht.matroids.tests.axioms.traits.AxiomTest
+import plus.albrecht.matroids.traits.{BasisMatroid, RankMatroid}
+import plus.albrecht.tests.TestResult
 
 import scala.reflect.ClassTag
 
@@ -27,10 +27,10 @@ import scala.reflect.ClassTag
  * @tparam T matroid element type
  */
 class SparkBasisMatroid[T](val _ground_set: Set[T],
-                           val _m: traits.SparkMatroid[T],
+                           val _m: SparkMatroid[T],
                            val _rank: Int)
-  extends traits.BasisMatroid[T]
-    with traits.RankMatroid[T] {
+  extends BasisMatroid[T]
+    with RankMatroid[T] {
   require(_rank > 0, "the rank must be positive.")
 
   /** constructor that obtains the rank from sparkMatroid
@@ -39,7 +39,7 @@ class SparkBasisMatroid[T](val _ground_set: Set[T],
    *
    * @param sparkMatroid
    */
-  def this(groundSet: Set[T], sparkMatroid: traits.SparkMatroid[T]) {
+  def this(groundSet: Set[T], sparkMatroid: SparkMatroid[T]) {
     this(groundSet, sparkMatroid,
       sparkMatroid.df(SparkMatroid.dataRank)
         .get.select(SparkMatroid.colRkRank)
@@ -50,7 +50,7 @@ class SparkBasisMatroid[T](val _ground_set: Set[T],
    *
    * @param sparkMatroid loop-less matroid or matroid that implements groundSet data frame
    */
-  def this(sparkMatroid: traits.SparkMatroid[T]) {
+  def this(sparkMatroid: SparkMatroid[T]) {
     this(sparkMatroid.df(SparkMatroid.dataGroundSet)
       .get.select(SparkMatroid.colGsElement)
       .collect().map(r ⇒ r.getAs[T](0)).toSet, sparkMatroid)
@@ -116,12 +116,12 @@ class SparkBasisMatroid[T](val _ground_set: Set[T],
       .head
 
     if (rank_or_null.isNullAt(0))
-      /* if we end up in this branch, then the set xs consists only of loops,
-         thus the dataframe after the filter expression is already empty.
-         Clearly, the rank of such a set is zero.
-       */
-      0
-    else
+    /* if we end up in this branch, then the set xs consists only of loops,
+       thus the dataframe after the filter expression is already empty.
+       Clearly, the rank of such a set is zero.
+     */
+    0
+      else
       rank_or_null.getInt(0)
 
   }
@@ -179,7 +179,7 @@ object SparkBasisMatroid {
    * @return new SparkBasisMatroid
    */
   def apply[T](_ground_set: Set[T],
-               _m: traits.SparkMatroid[T],
+               _m: SparkMatroid[T],
                _rank: Int): SparkBasisMatroid[T] = new SparkBasisMatroid[T](_ground_set, _m, _rank)
 
   /**
@@ -194,7 +194,7 @@ object SparkBasisMatroid {
    * @return new SparkBasisMatroid
    */
   def apply[T](_ground_set: Set[T],
-               _m: traits.SparkMatroid[T]): SparkBasisMatroid[T] = new SparkBasisMatroid[T](_ground_set, _m)
+               _m: SparkMatroid[T]): SparkBasisMatroid[T] = new SparkBasisMatroid[T](_ground_set, _m)
 
   /**
    * convenience constructor
@@ -205,7 +205,7 @@ object SparkBasisMatroid {
    *
    * @return new SparkBasisMatroid
    */
-  def apply[T](_m: traits.SparkMatroid[T]): SparkBasisMatroid[T] = new SparkBasisMatroid[T](_m)
+  def apply[T](_m: SparkMatroid[T]): SparkBasisMatroid[T] = new SparkBasisMatroid[T](_m)
 
   /**
    * convenience constructor to move BasisMatroid to Spark
@@ -216,7 +216,7 @@ object SparkBasisMatroid {
    *
    * @return
    */
-  def apply[T: ClassTag](basisMatroid: traits.BasisMatroid[T]): SparkBasisMatroid[T] = {
+  def apply[T: ClassTag](basisMatroid: BasisMatroid[T]): SparkBasisMatroid[T] = {
     val s = new BasisToSparkMatroid[T](basisMatroid)
     SparkBasisMatroid[T](basisMatroid.groundSetAsSet, s, basisMatroid.rank())
   }

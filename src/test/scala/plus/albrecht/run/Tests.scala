@@ -1,9 +1,15 @@
 package plus.albrecht.run
 
+import org.scalatest.BeforeAndAfterAll
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 
-class Tests extends AnyFlatSpec with Matchers {
+class Tests extends AnyFlatSpec with Matchers with BeforeAndAfterAll {
+
+
+  override protected def beforeAll(): Unit = {
+    Config(x ⇒ x.setTagSet(Set("spark")).set("master","local[4]").set("app-name","run.Tests"))
+  }
 
   "Spark" should "give a session object != null" in {
     assert(Spark.spark != null)

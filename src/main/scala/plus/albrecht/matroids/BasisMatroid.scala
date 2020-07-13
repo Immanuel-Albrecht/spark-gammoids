@@ -1,7 +1,5 @@
 package plus.albrecht.matroids
 
-import scala.collection.GenTraversableOnce
-
 /**
  * class that stores a matroid as a family of bases (in scala)
  *

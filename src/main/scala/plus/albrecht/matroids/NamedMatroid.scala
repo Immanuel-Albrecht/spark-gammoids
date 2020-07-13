@@ -5,16 +5,14 @@ import java.io.InputStream
 import plus.albrecht.matroids.from_sage.SageNamedMatroids
 import plus.albrecht.util.Lazy
 
-import scala.io.Source
-
 /**
-  * some matroids have special names, and we keep track of them here.
-  */
+ * some matroids have special names, and we keep track of them here.
+ */
 object NamedMatroid {
 
   /**
-    * M(K4), an important excluded minor for the family of gammoids.
-    */
+   * M(K4), an important excluded minor for the family of gammoids.
+   */
   lazy val mk4 = new BasisMatroid[String](
     Set(
       Set("a", "b", "d"),
@@ -61,11 +59,12 @@ object NamedMatroid {
     Map("MK4" → "M(K4)", "MK_4" → "M(K4)", "M(K_4)" → "M(K4)")
 
   /**
-    * Get a well-known matroid from its name.
-    *
-    * @param name     which matroid
-    * @return      a BasisMatroid representation of the given matroid
-    */
+   * Get a well-known matroid from its name.
+   *
+   * @param name which matroid
+   *
+   * @return a BasisMatroid representation of the given matroid
+   */
   def apply(name: String): BasisMatroid[String] = {
     val upperName = name.toUpperCase()
     aliasList.getOrElse(upperName, upperName) match {
@@ -80,18 +79,19 @@ object NamedMatroid {
   }
 
   /**
-    * here we store a list of big matroid names (after aliasing)
-    */
+   * here we store a list of big matroid names (after aliasing)
+   */
   lazy val bigMatroidNames = {
     SageNamedMatroids.bigMatroids.map(_.toUpperCase())
   }
 
   /**
-    * Tells you whether a named matroid is considered to be big.
-    *
-    * @param name   which matroid
-    * @return
-    */
+   * Tells you whether a named matroid is considered to be big.
+   *
+   * @param name which matroid
+   *
+   * @return
+   */
   def isBig(name: String): Boolean = {
     val upperName = name.toUpperCase()
     bigMatroidNames contains aliasList.getOrElse(upperName, upperName)

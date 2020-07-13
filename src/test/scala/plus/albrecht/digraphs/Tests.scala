@@ -1,10 +1,17 @@
 package plus.albrecht.digraphs
 
+import org.scalatest.BeforeAndAfterAll
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
+import plus.albrecht.run.Config
 
 
-class Tests extends AnyFlatSpec with Matchers {
+class Tests extends AnyFlatSpec with Matchers with BeforeAndAfterAll {
+
+
+  override protected def beforeAll(): Unit = {
+    Config(x ⇒ x.setTagSet(Set("spark")).set("master","local[4]").set("app-name","digraphs.Tests"))
+  }
 
   "QuasiPaths.isValid" should "work" in {
     assert(QuasiPath(1, Set(1, 2, 3), 3).isValid().passed == true)

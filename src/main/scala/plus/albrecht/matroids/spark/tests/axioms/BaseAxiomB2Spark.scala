@@ -1,37 +1,38 @@
-package plus.albrecht.matroids.tests.axioms
+package plus.albrecht.matroids.spark.tests.axioms
 
 import org.apache.spark.sql.ColumnName
 import org.apache.spark.sql.functions._
-import plus.albrecht.matroids.SparkBasisMatroid
-import plus.albrecht.matroids.traits.SparkMatroid
+import plus.albrecht.matroids.spark.SparkBasisMatroid
+import plus.albrecht.matroids.spark.traits.SparkMatroid
+import plus.albrecht.matroids.tests.axioms.traits
 import plus.albrecht.tests.TestResult
 
 class BaseAxiomB2Spark[T](val M: SparkBasisMatroid[T],
                           override val failFast: Boolean)
-    extends traits.AxiomTest {
+  extends traits.AxiomTest {
 
   /**
-    * convenience constructor
-    *
-    * @param m basis matroid under consideration
-    */
+   * convenience constructor
+   *
+   * @param m basis matroid under consideration
+   */
   def this(m: SparkBasisMatroid[T]) {
     this(m, true)
   }
 
   /**
-    * does it hold?
-    *
-    * Well, also, rework this; it's probably quite wrong:
-    *
-    * Is P8pp valid? no
-    * Report:
-    * =======
-    * [v] 4 is a valid rank.
-    * [v] There is a basis.
-    * [v] 0 bases have the wrong cardinality.
-    * [v] 0 base elements are non-matroid elements.
-    * [x] There are at least 1 counter-examples to (B2).
+   * does it hold?
+   *
+   * Well, also, rework this; it's probably quite wrong:
+   *
+   * Is P8pp valid? no
+   * Report:
+   * =======
+   * [v] 4 is a valid rank.
+   * [v] There is a basis.
+   * [v] 0 bases have the wrong cardinality.
+   * [v] 0 base elements are non-matroid elements.
+   * [x] There are at least 1 counter-examples to (B2).
    **/
   override lazy val result: TestResult = {
 
@@ -42,10 +43,10 @@ class BaseAxiomB2Spark[T](val M: SparkBasisMatroid[T],
      */
 
     /**
-      * get the bases as sets
-      *
-      * This will break if you have a matroid where you cannot store a single
-      * basis on a node */
+     * get the bases as sets
+     *
+     * This will break if you have a matroid where you cannot store a single
+     * basis on a node */
     val dfBases = (M.dfBasisFamily
       .groupBy(SparkMatroid.colBfId)
       .agg(sort_array(collect_set(SparkMatroid.colBfElement)).as("B1"))

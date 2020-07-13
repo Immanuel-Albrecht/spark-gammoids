@@ -6,7 +6,7 @@ object SageNamedMatroids {
   /**
    * We consider these matroids to be rather big.
    */
-  val bigMatroids = Set[String]("ExtendedBinaryGolayCode","Terrahawk","D16")
+  val bigMatroids = Set[String]("ExtendedBinaryGolayCode", "Terrahawk", "D16")
 
 
   /**
