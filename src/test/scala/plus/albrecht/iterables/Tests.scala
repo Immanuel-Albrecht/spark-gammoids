@@ -12,7 +12,7 @@ class Tests extends AnyFlatSpec with Matchers with BeforeAndAfterAll {
       x ⇒
         x.setTagSet(Set("spark"))
           .set("master", "local[4]")
-          .set("app-name", "digraphs.Tests")
+          .set("app-name", "iterables.Tests")
     )
   }
 
