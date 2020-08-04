@@ -8,16 +8,17 @@ import scala.reflect.ClassTag
   * an induced order.
   *
   * It will be used to determine a linear order of matroid elements
-  * that minimizes the basis-indicator vector with respect to the induced
+  * that maximizes the basis-indicator vector with respect to the induced
   * order on the rank-elementary subsets of the groundset.
   */
-object FindMinimalLinearOrder {
+object FindExtremalLinearOrder {
 
   def apply[T, P](
       groundSet: Set[T],
       b0s: Seq[Iterable[Seq[T]]],
       objective_vector: (Seq[T] ⇒ P),
-      extend_by: Int
+      extend_by: Int,
+      findMaximum: Boolean
   )(implicit
       p: Ordering[P]
   ): Seq[T] = {
@@ -82,7 +83,7 @@ object FindMinimalLinearOrder {
                     val m = maximum.get
                     val c = objective_vector(b0 ++ s1)
                     p.compare(m, c) match {
-                      case -1 ⇒ {
+                      case x0 if x0 == (if (findMaximum) -1 else 1) ⇒ {
                         /* m < c */
                         /* we found a new maximum, all old maximal elements are
                           no longer maximal. */
@@ -97,7 +98,7 @@ object FindMinimalLinearOrder {
                         /* append to the set of maximal solutions */
                         (to_do, maximal :+ x, maximum)
                       }
-                      case 1 ⇒ {
+                      case x0 if x0 == (if (findMaximum) 1 else -1) ⇒ {
                         /* m > c */
                         /* b0 ++ s1 is not maximal; we might try a differently
                          * ordered alternative */

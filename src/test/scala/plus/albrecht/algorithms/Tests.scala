@@ -16,14 +16,26 @@ class Tests extends AnyFlatSpec with Matchers with BeforeAndAfterAll {
         .toSeq
         .map(_.toIterable)
 
-    val y = FindMinimalLinearOrder(
+    val y = FindExtremalLinearOrder(
       groundSet,
       b0s,
       (x: Seq[Int]) ⇒ x.toIterable,
-      groundSet.size - 3
+      groundSet.size - 3,
+      true
     )
 
     assert(y == Seq(0, 1, 2, 3, 4, 5, 6, 7).reverse)
+
+    val y2 = FindExtremalLinearOrder(
+      groundSet,
+      b0s,
+      (x: Seq[Int]) ⇒ x.toIterable,
+      groundSet.size - 3,
+      false
+    )
+
+    assert(y2 == Seq(0, 1, 2, 3, 4, 5, 6, 7))
+
   }
 
 }
