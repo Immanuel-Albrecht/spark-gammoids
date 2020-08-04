@@ -258,4 +258,13 @@ trait BasisMatroid[T] extends Matroid[T] {
     `canonicalOrdering*`
   )
 
+  /**
+    * tests whether this matroid is isomorphic to its dual
+    * @return true, if this matroid is self-dual.
+    */
+  def isSelfDual(): Boolean = {
+    if (rank() != `rank*`()) false
+    else
+      canonicalBasisIndicator == `canonicalBasisIndicator*`
+  }
 }

@@ -1,5 +1,6 @@
 package plus.albrecht.algorithms
 
+import scala.annotation.tailrec
 import scala.reflect.ClassTag
 
 /**
@@ -30,6 +31,7 @@ object FindExtremalLinearOrder {
     ) {}
 
     /* we iterate using a tail recursion on this function */
+    @tailrec
     def iterate(
         to_do: Seq[orderExtension],
         maximal: Seq[orderExtension],
@@ -59,15 +61,7 @@ object FindExtremalLinearOrder {
       } else {
         /* We have to filter the elements of the to_do sequence.
          */
-        (
-            (x: (Seq[orderExtension], Seq[orderExtension], Option[P])) ⇒ {
-
-              iterate(x._1, x._2, x._3, nbr_items_missing)
-              /* There has to be a nicer way to fold on the parameters that are
-                 passed to the next iteration step than this here.
-               */
-            }
-        )(
+        val x = (
           to_do
             .foldLeft(
               (Seq[orderExtension](), maximal, maximum)
@@ -140,7 +134,9 @@ object FindExtremalLinearOrder {
                 }
               }
             )
-        )
+          )
+
+        iterate(x._1, x._2, x._3, nbr_items_missing)
 
       }
     }
