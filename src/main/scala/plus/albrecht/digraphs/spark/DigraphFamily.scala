@@ -46,6 +46,8 @@ class DigraphFamily[V: ClassTag](val df: DataFrame) {
   /**
     * class that represents a path and stats about it
     *
+    * TODO: remove or use this for something!
+    *
     * @param path
     * @param source
     * @param target
@@ -152,19 +154,24 @@ object DigraphFamily {
     * creates the corresponding DigraphFamily object.
     *
     * @param digraphs  sequence of digraphs
-    * @tparam V
+    * @param id0       id for digraphs.head
+    * @param next_id   generate next id
+    * @tparam V        vertex type
+    * @tparam ID       id type
     * @return DigraphFamilyObject
     */
-  def apply[V: ClassTag](
-      digraphs: Seq[Digraph[V]]
+  def apply[V: ClassTag, ID: ClassTag](
+      digraphs: Seq[Digraph[V]],
+      id0: ID,
+      next_id: ID ⇒ ID
   ): DigraphFamily[V] = {
 
     val arcsSeq = digraphs
-      .foldLeft((Seq[Row](), 0))({
+      .foldLeft((Seq[Row](), id0))({
         case ((s0, id), d) ⇒ {
           (
             s0 ++ d.iterateArcs().map({ case (u: V, v: V) ⇒ Row(id, u, v) }),
-            id + 1
+            next_id(id)
           )
         }
       })
@@ -173,7 +180,7 @@ object DigraphFamily {
     val rdd = spark.sparkContext.parallelize(arcsSeq)
 
     val schema = StructType(
-      StructField(id, IntegerType, false) ::
+      StructField(id, Types.getSparkType[ID](), false) ::
         StructField(u, Types.getSparkType[V](), false) ::
         StructField(v, Types.getSparkType[V](), false) :: Nil
     )
@@ -182,6 +189,23 @@ object DigraphFamily {
 
     new DigraphFamily[V](df)
 
+  }
+
+  /**
+    * Puts a sequence of digraphs as family in a spark data frame and
+    * creates the corresponding DigraphFamily object.
+    *
+    * Uses the sequence index as id.
+    *
+    * @param digraphs  sequence of digraphs
+    * @tparam V        vertex type
+    * @tparam ID       id type
+    * @return DigraphFamilyObject
+    */
+  def apply[V: ClassTag, ID: ClassTag](
+      digraphs: Seq[Digraph[V]]
+  ): DigraphFamily[V] = {
+    apply[V, Int](digraphs, 0, (x: Int) ⇒ x + 1)
   }
 
   /**

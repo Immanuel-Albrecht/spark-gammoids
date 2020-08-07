@@ -1,24 +1,39 @@
 package plus.albrecht.matroids
 
-
+import org.apache.spark.sql.DataFrame
+import org.apache.spark.sql.types.{
+  DataType,
+  IntegerType,
+  StructType,
+  StringType
+}
 import org.scalatest.{BeforeAndAfter, BeforeAndAfterAll}
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 import plus.albrecht.digraphs.Digraph
 import plus.albrecht.matroids.spark.SparkBasisMatroid
 import plus.albrecht.matroids.spark.adapters.BasisToSparkMatroid
-import plus.albrecht.run.Config
-
+import plus.albrecht.matroids.spark.traits.SparkMatroid
+import plus.albrecht.matroids.tests.axioms.traits.AxiomTest
+import plus.albrecht.run.{Config, Spark}
 
 class Tests extends AnyFlatSpec with Matchers with BeforeAndAfterAll {
 
   override protected def beforeAll(): Unit = {
-    Config(x ⇒ x.setTagSet(Set("spark")).set("master","local[4]").set("app-name","matroids.Tests"))
+    Config(x ⇒
+      x.setTagSet(Set("spark"))
+        .set("master", "local[4]")
+        .set("app-name", "matroids.Tests")
+    )
   }
 
+  "Spark" should "give a session object != null" in {
+    assert(Spark.spark != null)
+  }
 
   "Gammoid" should "return the correct matroid" in {
-    val arcs = List(("a", "e"),
+    val arcs = List(
+      ("a", "e"),
       ("b", "f"),
       ("c", "g"),
       ("d", "h"),
@@ -41,10 +56,12 @@ class Tests extends AnyFlatSpec with Matchers with BeforeAndAfterAll {
       ("h", "l"),
       ("j", "m"),
       ("k", "m"),
-      ("m", "k"))
+      ("m", "k")
+    )
     val targets = List("i", "j", "k", "l", "m")
     val edges = Set("a", "b", "c", "d", "e", "f", "g", "h", "k")
-    val bases = Set(Set("a", "c", "b", "d"),
+    val bases = Set(
+      Set("a", "c", "b", "d"),
       Set("c", "b", "e", "d"),
       Set("a", "c", "d", "f"),
       Set("c", "e", "d", "f"),
@@ -109,7 +126,8 @@ class Tests extends AnyFlatSpec with Matchers with BeforeAndAfterAll {
       Set("h", "k", "b", "g"),
       Set("h", "k", "d", "g"),
       Set("h", "k", "e", "g"),
-      Set("h", "k", "g", "f"))
+      Set("h", "k", "g", "f")
+    )
     val d = Digraph(arcs)
 
     /* verify that our algorithm is independent on the ordering of the targets */
@@ -121,7 +139,8 @@ class Tests extends AnyFlatSpec with Matchers with BeforeAndAfterAll {
   }
 
   "NamedMatroids" should "be valid" in {
-    val names: Set[String] = NamedMatroid.aliasList.map({ case (_, name) ⇒ name })
+    val names: Set[String] = NamedMatroid.aliasList
+      .map({ case (_, name) ⇒ name })
       .toSet ++ NamedMatroid.from_sage.keySet
     names.foreach({
       case name: String ⇒ {
@@ -135,8 +154,7 @@ class Tests extends AnyFlatSpec with Matchers with BeforeAndAfterAll {
           println(" yes.")
         }
       }
-    }
-    )
+    })
   }
 
   "SparkBasisMatroid(BasisMatroid)" should "create equivalent matroid" in {
@@ -147,53 +165,61 @@ class Tests extends AnyFlatSpec with Matchers with BeforeAndAfterAll {
     assert(mk4sb.groundSetAsSet == mk4.groundSetAsSet)
     assert(mk4sb.basisFamily().toSet == mk4.basisFamily().toSet)
 
-    mk4.groundSetAsSet.subsets.foreach(x ⇒
-      assert(mk4.rk(x) == mk4sb.rk(x))
-    )
+    mk4.groundSetAsSet.subsets.foreach(x ⇒ assert(mk4.rk(x) == mk4sb.rk(x)))
 
   }
 
   "MK4.rk" should "give correct rank" in {
     val mk4 = NamedMatroid("MK4")
 
-    mk4._ground_set.subsets().foreach(x ⇒ {
-      val r = x.size match {
-        case q if q < 3 ⇒ q
-        case q if q > 3 ⇒ 3
-        case _ ⇒
-          x match {
-            case x if x == Set("a", "b", "c") ⇒ 2
-            case x if x == Set("a", "e", "f") ⇒ 2
-            case x if x == Set("b", "d", "e") ⇒ 2
-            case x if x == Set("c", "d", "f") ⇒ 2
-            case _ ⇒ 3
-          }
-      }
-      assert(mk4.rk(x) == r)
-    }
-    )
+    mk4._ground_set
+      .subsets()
+      .foreach(x ⇒ {
+        val r = x.size match {
+          case q if q < 3 ⇒ q
+          case q if q > 3 ⇒ 3
+          case _ ⇒
+            x match {
+              case x if x == Set("a", "b", "c") ⇒ 2
+              case x if x == Set("a", "e", "f") ⇒ 2
+              case x if x == Set("b", "d", "e") ⇒ 2
+              case x if x == Set("c", "d", "f") ⇒ 2
+              case _ ⇒ 3
+            }
+        }
+        assert(mk4.rk(x) == r)
+      })
   }
 
   "MK4" should "be self-dual" in {
     /* note that M(K4) is not identically self-dual */
-    val phi = Map("a" → "d", "b" → "f", "c" → "e",
-      "d" → "a", "f" → "b", "e" → "c")
+    val phi =
+      Map("a" → "d", "b" → "f", "c" → "e", "d" → "a", "f" → "b", "e" → "c")
     val mk4 = NamedMatroid("MK4")
 
     assert(mk4.rank() == mk4.`rank*`())
 
-    mk4.groundSetAsSet.subsets().foreach(x ⇒ {
-      val x_phi = x.map(phi(_))
-      assert(mk4.rk(x) == mk4.`rk*`(x_phi))
-      assert(mk4.isBasis(x) == mk4.`isBasis*`(x_phi))
-    }
-    )
+    mk4.groundSetAsSet
+      .subsets()
+      .foreach(x ⇒ {
+        val x_phi = x.map(phi(_))
+        assert(mk4.rk(x) == mk4.`rk*`(x_phi))
+        assert(mk4.isBasis(x) == mk4.`isBasis*`(x_phi))
+      })
   }
 
   "BasisMatroid.equals" should "work" in {
     val mk4 = NamedMatroid("MK4")
-    val m = new BasisMatroid[String](mk4.groundSet().toSet, mk4.basisFamily().toSet, mk4.rank())
-    val m2 = new BasisMatroid[String](mk4.groundSet().toSet, mk4.basisFamily().toSet ++ Set(Set("a", "b", "c")).toSet, mk4.rank())
+    val m = new BasisMatroid[String](
+      mk4.groundSet().toSet,
+      mk4.basisFamily().toSet,
+      mk4.rank()
+    )
+    val m2 = new BasisMatroid[String](
+      mk4.groundSet().toSet,
+      mk4.basisFamily().toSet ++ Set(Set("a", "b", "c")).toSet,
+      mk4.rank()
+    )
     /* m2 is the hyperplane-circuit relaxation of {a,b,c} in M(K4) */
 
     assert(m == mk4)
@@ -266,7 +292,8 @@ class Tests extends AnyFlatSpec with Matchers with BeforeAndAfterAll {
       Set("c", "d", "e") → true,
       Set("c", "d", "f") → false,
       Set("c", "e", "f") → true,
-      Set("d", "e", "f") → true)
+      Set("d", "e", "f") → true
+    )
 
     checkBasis.foreach({
       case (x, isBase) ⇒ {
@@ -277,23 +304,26 @@ class Tests extends AnyFlatSpec with Matchers with BeforeAndAfterAll {
   }
 
   "B2-test" should "detect problems" in {
-    val not_mk4 = new BasisMatroid[String](Set(
-      Set("a", "b", "d"),
-      Set("a", "b", "e"),
-      Set("a", "b", "f"),
-      Set("a", "c", "d"),
-      Set("a", "c", "e"),
-      Set("a", "c", "f"),
-      Set("a", "d", "e"),
-      Set("a", "d", "f"),
-      Set("b", "c", "d"),
-      // Set("b","c","e"),
-      Set("b", "c", "f"),
-      Set("b", "d", "f"),
-      Set("b", "e", "f"),
-      Set("c", "d", "e"),
-      Set("c", "e", "f"),
-      Set("d", "e", "f")))
+    val not_mk4 = new BasisMatroid[String](
+      Set(
+        Set("a", "b", "d"),
+        Set("a", "b", "e"),
+        Set("a", "b", "f"),
+        Set("a", "c", "d"),
+        Set("a", "c", "e"),
+        Set("a", "c", "f"),
+        Set("a", "d", "e"),
+        Set("a", "d", "f"),
+        Set("b", "c", "d"),
+        // Set("b","c","e"),
+        Set("b", "c", "f"),
+        Set("b", "d", "f"),
+        Set("b", "e", "f"),
+        Set("c", "d", "e"),
+        Set("c", "e", "f"),
+        Set("d", "e", "f")
+      )
+    )
 
     assert(not_mk4.isValid().passed == false)
     assert(SparkBasisMatroid(not_mk4).isValid().passed == false)
@@ -303,10 +333,92 @@ class Tests extends AnyFlatSpec with Matchers with BeforeAndAfterAll {
     try {
       NamedMatroid("oeu]+oeugoensthoeu!jq]]oeu]]")
       fail("Garbled matroid name did not throw!")
-    }
-    catch {
+    } catch {
       case _: Exception ⇒ Unit
     }
   }
 
+  "cocanonicalBasisIndicator" should "not crash" in {
+    assert(
+      NamedMatroid("MK4").cocanonicalBasisIndicator.size == NamedMatroid(
+        "MK4"
+      ).canonicalBasisIndicator.size
+    )
+  }
+
+  "isSelfDual" should "work on well-known examples" in {
+    assert(NamedMatroid("MK4").isSelfDual() == true)
+    assert(NamedMatroid("P8pp").isSelfDual() == true)
+    assert(NamedMatroid("R6").isSelfDual() == true)
+    assert(NamedMatroid("F8").isSelfDual() == true)
+    assert(NamedMatroid("Fano").isSelfDual() == false)
+    assert(NamedMatroid("O7").isSelfDual() == false)
+    assert(NamedMatroid("P8").isSelfDual() == true)
+  }
+
+  "AxiomTest.derived.class" should "fail test if unimplemented" in {
+    class subtest extends AxiomTest {
+      override val failFast: Boolean = false
+    }
+    assert((new subtest).result.passed == false)
+  }
+
+  "SparkMatroid.default.implementations" should "give correct results" in {
+    val mk4 = NamedMatroid("MK4")
+    val s_mk4 = BasisToSparkMatroid(mk4)
+
+    assert(
+      SparkMatroid
+        .inferGroundSetFromBasisFamily(s_mk4.dfBasisFamily)
+        .collect()
+        .map(r ⇒ r.getString(0))
+        .toSet == mk4
+        .groundSet()
+    )
+
+    assert(
+      SparkMatroid
+        .inferRankFromBasisFamily(s_mk4.dfBasisFamily, s_mk4.spark())
+        .head
+        .getInt(0) == mk4.rank()
+    )
+
+    val s = new SparkMatroid[Int] {
+      override def elementType(): DataType = IntegerType
+
+    }
+
+    assert(s.df(SparkMatroid.dataRank) == None)
+    assert(s.df(SparkMatroid.dataGroundSet) == None)
+    assert(s.df(SparkMatroid.dataBasisFamily) == None)
+
+    val s2 = new SparkMatroid[String] {
+      override def elementType(): DataType = StringType
+
+      override def df(data: String): Option[DataFrame] = {
+        data match {
+          case x if x == SparkMatroid.dataBasisFamily ⇒
+            Some(s_mk4.dfBasisFamily)
+          case _ ⇒ super.df(data)
+        }
+      }
+    }
+
+    assert(
+      s2.df(SparkMatroid.dataGroundSet)
+        .get
+        .collect()
+        .map(r ⇒ r.getString(0))
+        .toSet == mk4
+        .groundSet()
+    )
+
+    assert(
+      s2.df(SparkMatroid.dataRank)
+        .get
+        .head
+        .getInt(0) == mk4.rank()
+    )
+
+  }
 }
