@@ -4,35 +4,36 @@ import plus.albrecht.tests.TestResult
 import plus.albrecht.util.Lazy
 
 /**
- * object representing a directed graph (digraph).
- *
- * @param _vertices     Vertices in the digraph
- *
- * @param _incidence    Family of incidence lists: if y \in incidence[x],
- *                      then there is a n arc y->x in the digraph
- *
- * @param _invIncidence Family of inverse incidence lists: if x \in invIncidence[y],
- *                      then there is an arc x->y in the digraph
- *
- * @tparam V vertex type
- */
-class Digraph[V](val _vertices: Iterable[V],
-                 val _incidence: Map[V, Iterable[V]],
-                 val _invIncidence: Map[V, Iterable[V]])
-  extends traits.PathStructure[V] {
+  * object representing a directed graph (digraph).
+  *
+  * @param _vertices     Vertices in the digraph
+  *
+  * @param _incidence    Family of incidence lists: if y \in incidence[x],
+  *                      then there is a n arc y->x in the digraph
+  *
+  * @param _invIncidence Family of inverse incidence lists: if x \in invIncidence[y],
+  *                      then there is an arc x->y in the digraph
+  *
+  * @tparam V vertex type
+  */
+class Digraph[V](
+    val _vertices: Iterable[V],
+    val _incidence: Map[V, Iterable[V]],
+    val _invIncidence: Map[V, Iterable[V]]
+) extends traits.PathStructure[V] {
 
   /**
-   * cache the dual digraph, this way, we achieve this.opp().opp() === this,
-   * we initialize it once it is requested
-   */
+    * cache the dual digraph, this way, we achieve this.opp().opp() === this,
+    * we initialize it once it is requested
+    */
   private var reflectDual: Digraph[V] = null
 
   /**
-   * get the dual digraph
-   * (i.e. the Digraph with all arcs reversed)
-   *
-   * @return Digraph object
-   */
+    * get the dual digraph
+    * (i.e. the Digraph with all arcs reversed)
+    *
+    * @return Digraph object
+    */
   def opp(): Digraph[V] = {
     if (reflectDual == null) {
       reflectDual = new Digraph[V](_vertices, _invIncidence, _incidence)
@@ -44,28 +45,38 @@ class Digraph[V](val _vertices: Iterable[V],
   override def vertices(): Iterable[V] = _vertices
 
   /**
-   * the vertices as set
-   */
+    * the vertices as set
+    */
   lazy val vertexSet = _vertices.toSet
 
   /**
-   * the incidences as sets
-   */
+    * the incidences as sets
+    */
   lazy val incidenceSets = _incidence.mapValues(_.toSet)
 
   /**
-   * the inverse incidence as sets
-   */
+    * the inverse incidence as sets
+    */
   lazy val invIncidenceSets = _invIncidence.mapValues(_.toSet)
 
   /**
-   * Tests whether the incidence of this digraph equals the given other
-   * incidence.
-   *
-   * @param other_incidence
-   *
-   * @return true, if both incidences describe the same arc set
-   */
+    * iterate over all arcs as pairs
+    *
+    * @return  arc iterable
+    */
+  def iterateArcs(): Iterable[(V, V)] = {
+    _incidence.toIterable
+      .flatMap({ case (u, vs) ⇒ vs.map((u, _)) })
+  }
+
+  /**
+    * Tests whether the incidence of this digraph equals the given other
+    * incidence.
+    *
+    * @param other_incidence
+    *
+    * @return true, if both incidences describe the same arc set
+    */
   def compareIncidence(other_incidence: Map[V, Set[V]]): Boolean = {
 
     _incidence.keySet
@@ -81,33 +92,34 @@ class Digraph[V](val _vertices: Iterable[V],
   }
 
   /**
-   * determine whether two digraphs are equal,
-   * assuming that if both objects are Digraphs,
-   * then they are both valid objects.
-   *
-   * @param that compare to this object
-   *
-   * @return true, if both digraphs are equal
-   */
-  override def equals(that: Any): Boolean = that match {
-    case that: Digraph[V] ⇒ {
-      this.vertexSet == that.vertexSet &&
+    * determine whether two digraphs are equal,
+    * assuming that if both objects are Digraphs,
+    * then they are both valid objects.
+    *
+    * @param that compare to this object
+    *
+    * @return true, if both digraphs are equal
+    */
+  override def equals(that: Any): Boolean =
+    that match {
+      case that: Digraph[V] ⇒ {
+        this.vertexSet == that.vertexSet &&
         compareIncidence(that.incidenceSets)
-      /* assuming that both objects are valid, we can skip this._invIncidence == that
+        /* assuming that both objects are valid, we can skip this._invIncidence == that
       ._invIncidence */
+      }
+      case _ ⇒ false
     }
-    case _ ⇒ false
-  }
 
   /**
-   * Tests whether:
-   *   - every arc connects two elements of the vertex set
-   *   - incidence and invIncidence are
-   *
-   * @param failFast stop testing as soon as it is clear that this object is invalid
-   *
-   * @return test result
-   */
+    * Tests whether:
+    *   - every arc connects two elements of the vertex set
+    *   - incidence and invIncidence are
+    *
+    * @param failFast stop testing as soon as it is clear that this object is invalid
+    *
+    * @return test result
+    */
   def isValid(failFast: Boolean): TestResult = {
 
     lazy val incident_vertices: Set[V] = _incidence
@@ -182,23 +194,23 @@ class Digraph[V](val _vertices: Iterable[V],
   }
 
   /**
-   * quick check whether the digraph's values are consistent
-   *
-   * @return isValid(true)
-   */
+    * quick check whether the digraph's values are consistent
+    *
+    * @return isValid(true)
+    */
   def isValid(): TestResult = isValid(true)
 
   /**
-   * Determine all paths (and accompanying QuasiPaths) in the digraph that end in certain
-   * targets.
-   *
-   * @param targets a set of vertices in which the paths are allowed to end
-   *
-   * @return family of (path, QuasiPath) pairs
-   */
+    * Determine all paths (and accompanying QuasiPaths) in the digraph that end in certain
+    * targets.
+    *
+    * @param targets a set of vertices in which the paths are allowed to end
+    *
+    * @return family of (path, QuasiPath) pairs
+    */
   def allPathsAndPathStatsThatEndIn(
-                                     targets: Iterable[V]
-                                   ): Set[(List[V], QuasiPath[V])] = {
+      targets: Iterable[V]
+  ): Set[(List[V], QuasiPath[V])] = {
     val trivial: Set[(List[V], QuasiPath[V])] =
       targets.map(v ⇒ (List[V](v), QuasiPath[V](v))).toSet
 
@@ -224,27 +236,27 @@ class Digraph[V](val _vertices: Iterable[V],
   }
 
   /**
-   * all paths and their respective QuasiPaths
-   */
+    * all paths and their respective QuasiPaths
+    */
   lazy val allPathsAndPathStats: Set[(List[V], QuasiPath[V])] =
     allPathsAndPathStatsThatEndIn(_vertices)
 
   /**
-   * all paths in the digraph
-   */
+    * all paths in the digraph
+    */
   lazy val allPaths: Set[List[V]] = allPathsAndPathStats.map(_._1).toSet
 
   /**
-   * the minimal statistics of all paths in the digraph
-   */
+    * the minimal statistics of all paths in the digraph
+    */
   lazy val allPathStats: Set[QuasiPath[V]] =
     allPathsAndPathStats.map(_._2).toSet
 
   /**
-   * super lazy path stats
-   */
+    * super lazy path stats
+    */
   lazy val pathStatsEndingInStartingIn
-  : Map[V, Lazy[Map[V, Set[QuasiPath[V]]]]] = {
+      : Map[V, Lazy[Map[V, Set[QuasiPath[V]]]]] = {
     _vertices
       .map(v ⇒ {
         v → Lazy({
@@ -262,9 +274,11 @@ class Digraph[V](val _vertices: Iterable[V],
       .toMap
   }
 
-  override def paths(sources: Iterable[V],
-                     avoiding: Iterable[V],
-                     targets: Iterable[V]): Iterable[QuasiPath[V]] = {
+  override def paths(
+      sources: Iterable[V],
+      avoiding: Iterable[V],
+      targets: Iterable[V]
+  ): Iterable[QuasiPath[V]] = {
     val avoid: Set[V] = avoiding.toSet
     val t: Set[V] = targets.toSet.diff(avoid)
     val s: Set[V] = sources.toSet.diff(avoid)
@@ -286,19 +300,19 @@ class Digraph[V](val _vertices: Iterable[V],
 }
 
 /**
- * companion object that helps creating valid digraphs
- */
+  * companion object that helps creating valid digraphs
+  */
 object Digraph {
 
   /**
-   * creates a digraph induced by a given set of arcs
-   *
-   * @param arcs a list of arcs
-   *
-   * @tparam V vertex ype
-   *
-   * @return new Digraph object
-   */
+    * creates a digraph induced by a given set of arcs
+    *
+    * @param arcs a list of arcs
+    *
+    * @tparam V vertex ype
+    *
+    * @return new Digraph object
+    */
   def apply[V](arcs: Iterable[(V, V)]): Digraph[V] = {
     val vertices_inc_inv =
       arcs.foldLeft((Set[V](), Map[V, Set[V]](), Map[V, Set[V]]()))({

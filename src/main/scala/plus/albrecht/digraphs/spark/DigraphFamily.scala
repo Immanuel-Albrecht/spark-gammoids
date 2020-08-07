@@ -15,8 +15,6 @@ import org.apache.spark.sql.types.{
 }
 import plus.albrecht.digraphs.Digraph
 
-import scala.collection.mutable
-
 /**
   * class for accessing digraph families stored in spark data frames.
   * Note: _This implementation disregards isolated vertices!_
@@ -53,10 +51,12 @@ class DigraphFamily[V: ClassTag](val df: DataFrame) {
     * @param target
     * @param visited
     */
-  case class PathWithStats(path: Array[V],
-                           source: V,
-                           target: V,
-                           visited: Array[V])
+  case class PathWithStats(
+      path: Array[V],
+      source: V,
+      target: V,
+      visited: Array[V]
+  )
 
   /**
     * data frame that contains all paths of each
@@ -65,21 +65,30 @@ class DigraphFamily[V: ClassTag](val df: DataFrame) {
   lazy val df_allPaths: DataFrame = {
     val schema = ArrayType(ArrayType(elementType()))
 
-    val generate_paths = udf((arcs: Seq[Row]) ⇒ {
-      Digraph[V](arcs.map(x ⇒ (x.getAs[V](0), x.getAs[V](1))).toList).allPaths
-        .map(_.toArray[Any])
-        .toArray[Any]
-    }, schema)
+    val generate_paths = udf(
+      (arcs: Seq[Row]) ⇒ {
+        Digraph[V](arcs.map(x ⇒ (x.getAs[V](0), x.getAs[V](1))).toList).allPaths
+          .map(_.toArray[Any])
+          .toArray[Any]
+      },
+      schema
+    )
 
     val elt_schema = elementType()
 
-    val first_element = udf((path: Seq[Any]) ⇒ {
-      path.head
-    }, elt_schema)
+    val first_element = udf(
+      (path: Seq[Any]) ⇒ {
+        path.head
+      },
+      elt_schema
+    )
 
-    val last_element = udf((path: Seq[Any]) ⇒ {
-      path.last
-    }, elt_schema)
+    val last_element = udf(
+      (path: Seq[Any]) ⇒ {
+        path.last
+      },
+      elt_schema
+    )
 
     df_arcs
       .select(
@@ -117,7 +126,7 @@ object DigraphFamily {
   /** nome of digraph arc target column */
   val v: String = "V"
 
-  /** name of the arcset  [(u,v),..] column */
+  /** name of the arc set  [(u,v),..] column */
   val arcs: String = "ARCS"
 
   /** name of the path column */
@@ -135,8 +144,45 @@ object DigraphFamily {
   /** digraph path column object */
   val colPath = new ColumnName(path)
 
-  /** digraph arcset column object */
+  /** digraph arc set column object */
   val colArcs = new ColumnName(arcs)
+
+  /**
+    * Puts a sequence of digraphs as family in a spark data frame and
+    * creates the corresponding DigraphFamily object.
+    *
+    * @param digraphs  sequence of digraphs
+    * @tparam V
+    * @return DigraphFamilyObject
+    */
+  def apply[V: ClassTag](
+      digraphs: Seq[Digraph[V]]
+  ): DigraphFamily[V] = {
+
+    val arcsSeq = digraphs
+      .foldLeft((Seq[Row](), 0))({
+        case ((s0, id), d) ⇒ {
+          (
+            s0 ++ d.iterateArcs().map({ case (u: V, v: V) ⇒ Row(id, u, v) }),
+            id + 1
+          )
+        }
+      })
+      ._1
+
+    val rdd = spark.sparkContext.parallelize(arcsSeq)
+
+    val schema = StructType(
+      StructField(id, IntegerType, false) ::
+        StructField(u, Types.getSparkType[V](), false) ::
+        StructField(v, Types.getSparkType[V](), false) :: Nil
+    )
+
+    val df = spark.createDataFrame(rdd, schema).cache()
+
+    new DigraphFamily[V](df)
+
+  }
 
   /**
     * Loads a digraph family from the given source,
@@ -152,12 +198,14 @@ object DigraphFamily {
     * @tparam ID
     * @return DigraphFamily object
     */
-  def apply[V: ClassTag, ID: ClassTag](path: String,
-                                       format: String,
-                                       idName: String,
-                                       uName: String,
-                                       vName: String,
-                                       filter: Column): DigraphFamily[V] = {
+  def apply[V: ClassTag, ID: ClassTag](
+      path: String,
+      format: String,
+      idName: String,
+      uName: String,
+      vName: String,
+      filter: Column
+  ): DigraphFamily[V] = {
     new DigraphFamily[V](
       spark.read
         .format(format)
@@ -181,9 +229,11 @@ object DigraphFamily {
     * @tparam ID
     * @return
     */
-  def apply[V: ClassTag, ID: ClassTag](path: String,
-                                       format: String,
-                                       filter: Column): DigraphFamily[V] = {
+  def apply[V: ClassTag, ID: ClassTag](
+      path: String,
+      format: String,
+      filter: Column
+  ): DigraphFamily[V] = {
     apply[V, ID](path, format, id, u, v, filter)
   }
 
