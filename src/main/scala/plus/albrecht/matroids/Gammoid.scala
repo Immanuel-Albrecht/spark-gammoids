@@ -1,63 +1,69 @@
 package plus.albrecht.matroids
 
-import plus.albrecht.digraphs.QuasiRouting
+import plus.albrecht.digraphs.{Digraph, QuasiRouting}
 import plus.albrecht.digraphs.traits.PathStructure
 
 /**
- * (companion) object that provides gammoid functionalities
- */
+  * (companion) object that provides gammoid functionalities
+  */
 object Gammoid {
 
   /**
-   * creates a BasisMatroid based on the gammoid representation (d,t,e)
-   *
-   * @param d digraph (we only need its PathStructure though)
-   *
-   * @param t set of targets of the gammoid (this is actually an iterable,
-   *          some orderings may be a lot faster than others)
-   *
-   * @param e set of edges of the gammoid
-   *
-   * @tparam V type for vertices/matroid elements
-   *
-   * @return the gammoid as BasisMatroid
-   */
+    * creates a BasisMatroid based on the gammoid representation (d,t,e)
+    *
+    * @param d digraph (we only need its PathStructure though)
+    *
+    * @param t set of targets of the gammoid (this is actually an iterable,
+    *          some orderings may be a lot faster than others)
+    *
+    * @param e set of edges of the gammoid
+    *
+    * @tparam V type for vertices/matroid elements
+    *
+    * @return the gammoid as BasisMatroid
+    */
   def apply[V](
-                d: PathStructure[V],
-                t: Iterable[V],
-                e: Set[V]): BasisMatroid[V] = {
+      d: PathStructure[V],
+      t: Iterable[V],
+      e: Set[V]
+  ): BasisMatroid[V] = {
     obtainGammoidFromRepresentationAvoiding[V](d, t, e, Set[V]())
   }
 
   /**
-   * creates a BasisMatroid based on the gammoid representation (d',t,e)
-   *
-   * where d' arises from d by deleting all vertices from 'avoid'
-   *
-   * @param d     digraph (we only need its PathStructure though)
-   *
-   * @param t     set of targets of the gammoid (this is actually an iterable,
-   *              some orderings may be a lot faster than others)
-   *
-   * @param e     set of edges of the gammoid
-   *
-   * @param avoid set of vertices in d that are forbidden to use
-   *
-   * @tparam V type for vertices/matroid elements
-   *
-   * @return the gammoid as BasisMatroid
-   */
+    * creates a BasisMatroid based on the gammoid representation (d',t,e)
+    *
+    * where d' arises from d by deleting all vertices from 'avoid'
+    *
+    * @param d     digraph (we only need its PathStructure though)
+    *
+    * @param t     set of targets of the gammoid (this is actually an iterable,
+    *              some orderings may be a lot faster than others)
+    *
+    * @param e     set of edges of the gammoid
+    *
+    * @param avoid set of vertices in d that are forbidden to use
+    *
+    * @tparam V type for vertices/matroid elements
+    *
+    * @return the gammoid as BasisMatroid
+    */
   def obtainGammoidFromRepresentationAvoiding[V](
-                                                  d: PathStructure[V],
-                                                  t: Iterable[V],
-                                                  e: Set[V],
-                                                  avoid: Set[V]): BasisMatroid[V] = {
+      d: PathStructure[V],
+      t: Iterable[V],
+      e: Set[V],
+      avoid: Set[V]
+  ): BasisMatroid[V] = {
     val (rank, quasi_routings): (Int, Set[QuasiRouting[V]]) =
-      (t.foldLeft((0, Set(QuasiRouting[V]()))) /* initialize with the empty routing */
+      (t.foldLeft(
+        (0, Set(QuasiRouting[V]()))
+      ) /* initialize with the empty routing */
       ({
         case ((rank, quasi_routings), t0) ⇒ {
           val augmented_routings = quasi_routings.flatMap(r0 ⇒ {
-            d.paths(e, avoid.union(r0.visited), Set(t0)).filter(r0.canCombine(_)).map(r0 ++ _)
+            d.paths(e, avoid.union(r0.visited), Set(t0))
+              .filter(r0.canCombine(_))
+              .map(r0 ++ _)
           })
           if (augmented_routings.isEmpty) {
             (rank, quasi_routings)

@@ -354,6 +354,20 @@ class Tests extends AnyFlatSpec with Matchers with BeforeAndAfterAll {
     assert(NamedMatroid("Fano").isSelfDual() == false)
     assert(NamedMatroid("O7").isSelfDual() == false)
     assert(NamedMatroid("P8").isSelfDual() == true)
+
+    val M = Gammoid(
+      Digraph(
+        ("d", "a") ::
+          ("e", "a") ::
+          ("f", "a") ::
+          ("b", "b") ::
+          ("c", "c") :: Nil
+      ),
+      Set("a", "b", "c"),
+      Set("a", "b", "c", "d", "e", "f")
+    )
+
+    assert(M.isSelfDual() == false)
   }
 
   "AxiomTest.derived.class" should "fail test if unimplemented" in {

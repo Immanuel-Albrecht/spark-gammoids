@@ -1,6 +1,6 @@
 package plus.albrecht.digraphs
 
-import org.apache.spark.sql.functions.collect_set
+import org.apache.spark.sql.functions.{collect_set, lit}
 import org.scalatest.BeforeAndAfterAll
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
@@ -149,6 +149,33 @@ class Tests extends AnyFlatSpec with Matchers with BeforeAndAfterAll {
     })
   }
 
+  "DigraphFamily.save.and.load" should "work" in {
+    df.df.write
+      .mode("overwrite")
+      .parquet("target/test-digraph-fam-arcs.parquet")
+
+    val df2 = DigraphFamily[Int, Int](
+      "target/test-digraph-fam-arcs.parquet",
+      "parquet",
+      lit(true)
+    )
+
+    val psets = df2.df_allPaths
+      .groupBy(DigraphFamily.id)
+      .agg(collect_set(DigraphFamily.path).as("pathset"))
+      .select("pathset")
+      .collect()
+
+    assert(psets.size == 2)
+
+    psets.foreach(row ⇒ {
+      row
+        .getAs[mutable.WrappedArray[mutable.WrappedArray[Int]]](0)
+        .map(_.toList)
+        .toSet == paths_d
+    })
+  }
+
   "Digraph companion" should "create valid Digraphs" in {
     val dg0 = Digraph((1, 2) :: (2, 3) :: Nil)
     val dg1 =
@@ -165,7 +192,7 @@ class Tests extends AnyFlatSpec with Matchers with BeforeAndAfterAll {
       d4.paths(Set(1), Set(), Set(2)).size == 1 /* 1 arc */ +
         2 /* 2 arcs via 3 or 4 */ +
         1 /* 3 arcs via 3 and 4;
-                                                 the two paths have the same QuasiPath
+            the two paths have the same QuasiPath
        */
     )
     assert(

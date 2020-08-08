@@ -44,23 +44,6 @@ class DigraphFamily[V: ClassTag](val df: DataFrame) {
     )
 
   /**
-    * class that represents a path and stats about it
-    *
-    * TODO: remove or use this for something!
-    *
-    * @param path
-    * @param source
-    * @param target
-    * @param visited
-    */
-  case class PathWithStats(
-      path: Array[V],
-      source: V,
-      target: V,
-      visited: Array[V]
-  )
-
-  /**
     * data frame that contains all paths of each
     * digraph in the family
     */
