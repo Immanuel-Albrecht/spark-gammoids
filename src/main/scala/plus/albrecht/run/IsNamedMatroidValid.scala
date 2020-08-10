@@ -5,18 +5,19 @@ import plus.albrecht.matroids.spark.SparkBasisMatroid
 import plus.albrecht.tests.TestResult
 
 /**
- * runs a test whether the named matroids given as parameters are valid
- */
+  * runs a test whether the named matroids given as parameters are valid
+  */
 object IsNamedMatroidValid {
 
   /**
-   * In sbt interactive prompt, use 'run plus.albrecht.run.TestMain' to call this function.
-   *
-   * @param args list of matroid names...
-   */
+    * In sbt interactive prompt, use 'run plus.albrecht.run.IsNamedMatroidValid'
+    *  to call this function.
+    *
+    * @param args list of matroid names...
+    */
   def main(args: Array[String]): Unit = {
 
-    Config(_.setTagSet(Set("spark")).set("app-name","IsNamedMatroidValid"))
+    Config(_.setTagSet(Set("spark")).set("app-name", "IsNamedMatroidValid"))
 
     args.foreach(name ⇒ {
       val M = SparkBasisMatroid(NamedMatroid(name))
