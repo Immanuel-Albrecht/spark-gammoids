@@ -4,8 +4,7 @@ import plus.albrecht.digraphs.spark.DigraphFamily
 import plus.albrecht.matroids.NamedMatroid
 import plus.albrecht.matroids.spark.SparkBasisMatroid
 import plus.albrecht.tests.TestResult
-
-import org.apache.spark.sql.functions.lit
+import org.apache.spark.sql.functions.{col, lit}
 
 /**
   * loads a family of digraphs from an external source,
@@ -19,6 +18,18 @@ object FindAllDigraphPaths {
     * to call this function.
     *
     * @param args list of matroid names...
+    *
+    *  Parameter list:
+    *
+    *  mandatory:
+    *    args(0)   ... path to source parquet
+    *    args(1)   ... path to target parquet (is overwritten)
+    *
+    *
+    *  optional:
+    *    args(2)    ... inclusive lower limit for ID in digraph family
+    *    args(3)    ... upper limit (excluded) for ID in digraph family
+    *
     */
   def main(args: Array[String]): Unit = {
 
@@ -36,11 +47,17 @@ object FindAllDigraphPaths {
     val source = args(0)
     val target = args(1)
 
+    val filter = if (args.length >= 4) {
+      (col(DigraphFamily.id) >= lit(args(2).toLong)) &&
+      (col(DigraphFamily.id) < lit(args(3).toLong))
+    } else lit(true)
+
     println("Determining all paths in digraphs")
     println(s"  - loaded from ${source} (parquet)")
+    println(s"    - with filter: ${filter}")
     println(s"  - writing result to ${target} (parquet, overwrite).")
 
-    DigraphFamily[Int, Int](source, "parquet", lit(true)).df_allPaths.write
+    DigraphFamily[Int, Long](source, "parquet", filter).df_allPaths.write
       .mode("overwrite")
       .parquet(target)
 
