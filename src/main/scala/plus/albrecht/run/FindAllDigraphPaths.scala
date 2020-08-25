@@ -1,10 +1,7 @@
 package plus.albrecht.run
 
-import plus.albrecht.digraphs.spark.DigraphFamily
-import plus.albrecht.matroids.NamedMatroid
-import plus.albrecht.matroids.spark.SparkBasisMatroid
-import plus.albrecht.tests.TestResult
 import org.apache.spark.sql.functions.{col, lit}
+import plus.albrecht.digraphs.spark.DigraphFamily
 
 /**
   * loads a family of digraphs from an external source,

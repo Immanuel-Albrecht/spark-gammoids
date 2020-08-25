@@ -1,9 +1,6 @@
 package plus.albrecht.run
 
 import org.apache.spark.sql.SparkSession
-import org.apache.spark.sql.types.DataType
-
-import scala.reflect.ClassTag
 
 /**
   * wrapper object for spark session
