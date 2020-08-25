@@ -259,6 +259,30 @@ trait BasisMatroid[T] extends Matroid[T] {
   )
 
   /**
+    * the canonicalBasisIndicator written down as a string of . and X's;
+    * where an 'X' indicates a basis, and an '.' indicates a non-basis.
+    */
+  lazy val basisIndicatorString: String = {
+    canonicalBasisIndicator.foldLeft("")({
+      case (s0, is_basis) ⇒ {
+        s0 + (if (is_basis) 'X' else '.')
+      }
+    })
+  }
+
+  /**
+    * the canonicalBasisIndicator* written down as a string of . and X's;
+    * where an 'X' indicates a basis, and an '.' indicates a non-basis.
+    */
+  lazy val `basisIndicatorString*` : String = {
+    `canonicalBasisIndicator*`.foldLeft("")({
+      case (s0, is_basis) ⇒ {
+        s0 + (if (is_basis) 'X' else '.')
+      }
+    })
+  }
+
+  /**
     * tests whether this matroid is isomorphic to its dual
     * @return true, if this matroid is self-dual.
     */
@@ -267,4 +291,12 @@ trait BasisMatroid[T] extends Matroid[T] {
     else
       canonicalBasisIndicator == `canonicalBasisIndicator*`
   }
+
+  /**
+    *
+    *
+    * @return default string representation of this BasisMatroid
+    */
+  override def toString(): String =
+    s"${groundSet().size},${rank},${basisIndicatorString}"
 }
