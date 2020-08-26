@@ -70,6 +70,9 @@ class CollectionOfDigraphPaths[V: ClassTag](val df_allPaths: DataFrame) {
         ArrayType(Types.getSparkType[V](), true)
       )
 
+  /**
+    * compute all the columns for the (strict) gammoids
+    */
   lazy val computeGammoidColumns = udf(
     (t: Seq[V], ps: Seq[Seq[V]]) ⇒ {
       val targets = t.toSet
@@ -88,8 +91,8 @@ class CollectionOfDigraphPaths[V: ClassTag](val df_allPaths: DataFrame) {
   )
 
   /**
-    * data frame that computes all the less trivial gammoids corresponding to
-    * a given
+    * data frame that computes all the less trivial (strict) gammoids that
+    * correspond to a given family of digraph paths.
     */
   lazy val df_gammoids: DataFrame = {
     import CollectionOfDigraphPaths._
