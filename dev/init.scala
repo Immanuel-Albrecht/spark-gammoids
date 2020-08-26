@@ -1,3 +1,4 @@
+import org.apache.spark.sql._
 import plus.albrecht.run._
 import plus.albrecht.matroids.{spark⇒_,_}
 import plus.albrecht.digraphs.{spark⇒_,_}
@@ -7,6 +8,8 @@ import plus.albrecht.digraphs.spark._
 import plus.albrecht.digraphs.traits._
 import plus.albrecht.matroids.spark._
 import plus.albrecht.matroids.spark.traits._
+
+
 
 def getSize(x : AnyRef) = org.apache.spark.util.SizeEstimator.estimate(x)
 
