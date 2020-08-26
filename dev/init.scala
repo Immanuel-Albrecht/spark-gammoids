@@ -1,9 +1,8 @@
 import plus.albrecht.run._
-import plus.albrecht.matroids._
-import plus.albrecht.digraphs._
+import plus.albrecht.matroids.{spark⇒_,_}
+import plus.albrecht.digraphs.{spark⇒_,_}
 import plus.albrecht.iterables._
 import org.apache.spark.sql.ColumnName
-import plus.albrecht.digraphs._
 import plus.albrecht.digraphs.spark._
 import plus.albrecht.digraphs.traits._
 import plus.albrecht.matroids.spark._
