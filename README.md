@@ -1,5 +1,5 @@
 # spark-gammoids
-gammoid and related combinatorics code for scala/spark
+gammoid and related combinatorics code for scala/spark, sister project of [elm-gammoids](http://git.albrecht.plus/elm-gammoids).
 
 
 ## target configuration

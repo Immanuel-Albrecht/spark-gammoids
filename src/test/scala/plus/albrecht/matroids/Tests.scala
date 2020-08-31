@@ -435,4 +435,23 @@ class Tests extends AnyFlatSpec with Matchers with BeforeAndAfterAll {
     )
 
   }
+
+  "basisIndicatorConstructor" should "work as expected" in {
+    val m0 = NamedMatroid("MK4")
+    val as_string = m0.toString()
+    val from_string = BasisMatroid(as_string)
+
+    assert(from_string.toString() == m0.toString())
+
+    val can_order = m0.canonicalOrdering.toArray
+
+    val bases: Set[Set[String]] =
+      from_string.basisFamily.map(s ⇒ s.map(i ⇒ can_order(i))).toSet
+
+    val bases2 = m0.basisFamily.toSet
+
+    assert(bases == bases2)
+
+  }
+
 }

@@ -135,11 +135,6 @@ object CollectionOfDigraphPaths {
     */
   lazy val spark = Spark.spark
 
-  /**
-    * column operation that turns a
-    */
-  lazy val getAllNonemptySubsets = udf({ collection: Seq[Row] ⇒ collection })
-
   /** name of digraph id column */
   val id: String = DigraphFamily.id
 

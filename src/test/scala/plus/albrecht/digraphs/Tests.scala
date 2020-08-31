@@ -4,8 +4,9 @@ import org.apache.spark.sql.functions.{collect_set, lit}
 import org.scalatest.BeforeAndAfterAll
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
-import plus.albrecht.digraphs.spark.DigraphFamily
-import plus.albrecht.run.Config
+import plus.albrecht.digraphs.spark.{CollectionOfDigraphPaths, DigraphFamily}
+import plus.albrecht.matroids.Gammoid
+import plus.albrecht.run.{ComputeStrictGammoids, Config, FindAllDigraphPaths}
 
 import scala.collection.mutable
 
@@ -211,5 +212,112 @@ class Tests extends AnyFlatSpec with Matchers with BeforeAndAfterAll {
 
   "Digraph" should "not equal some object of a different type" in {
     assert(d4 != Set(1, 2))
+  }
+
+  "CollectionOfDigraphPaths" should "work as expected" in {
+    val digraph_fam = DigraphFamily[Int, Int](d :: d :: Nil)
+    digraph_fam.df_allPaths.write
+      .mode("overwrite")
+      .parquet("target/coodp-test-fam.parquet")
+
+    val col1 = CollectionOfDigraphPaths[Int, Int]("target/test-fam.parquet")
+    val col2 = new CollectionOfDigraphPaths[Int](digraph_fam.df_allPaths)
+
+    val target_sets: Seq[Set[Int]] =
+      (Set(1)
+        :: Set(2)
+        :: Set(3)
+        :: Set(4)
+        :: Set(1, 2)
+        :: Set(1, 3)
+        :: Set(1, 4)
+        :: Set(2, 3)
+        :: Set(2, 4)
+        :: Set(3, 4)
+        :: Set(1, 2, 3)
+        :: Set(1, 2, 4)
+        :: Set(1, 3, 4)
+        :: Set(2, 3, 4)
+        :: Set(1, 2, 3, 4)
+        :: Nil)
+
+    val ground_set: Set[Int] = Set(1, 2, 3, 4)
+
+    /** determine what gammoids we expect to see;
+      * and because of d::d::Nil above, each comes in pairs. */
+    val expected_basis_indicators = (target_sets ++ target_sets)
+      .map(t ⇒ {
+        val g = Gammoid(d, t, ground_set)
+        f"${g.groundSetAsSet.size},${g.rank()},${g.basisIndicatorString}"
+      })
+      .toList
+      .sorted
+
+    val compare1 = col1.df_gammoids
+      .select(
+        CollectionOfDigraphPaths.colNbrElements,
+        CollectionOfDigraphPaths.colRank,
+        CollectionOfDigraphPaths.colBases
+      )
+      .collect()
+      .map(r ⇒
+        f"${r.getAs[String](0)},${r.getAs[String](1)},${r.getAs[String](2)}"
+      )
+      .toList
+      .sorted
+
+    assert(expected_basis_indicators == compare1)
+
+    val compare2 = col2.df_gammoids
+      .select(
+        CollectionOfDigraphPaths.colNbrElements,
+        CollectionOfDigraphPaths.colRank,
+        CollectionOfDigraphPaths.colBases
+      )
+      .collect()
+      .map(r ⇒
+        f"${r.getAs[String](0)},${r.getAs[String](1)},${r.getAs[String](2)}"
+      )
+      .toList
+      .sorted
+
+    assert(expected_basis_indicators == compare2)
+
+    /* now, do the same thing using the main routines of the specific classes from plus.albrecht.run */
+
+    digraph_fam.df.write.mode("overwrite").parquet("target/coodp-basis.parquet")
+    FindAllDigraphPaths.main(
+      Array(
+        "target/coodp-basis.parquet",
+        "target/coodp-all-paths.parquet",
+        "0",
+        "1000"
+      )
+    )
+
+    ComputeStrictGammoids.main(
+      Array(
+        "target/coodp-all-paths.parquet",
+        "target/coodp-gammoids.parquet",
+        "0",
+        "1000"
+      )
+    )
+
+    val compare3 = col1.df_gammoids.sparkSession.read
+      .parquet("target/coodp-gammoids.parquet")
+      .select(
+        CollectionOfDigraphPaths.colNbrElements,
+        CollectionOfDigraphPaths.colRank,
+        CollectionOfDigraphPaths.colBases
+      )
+      .collect()
+      .map(r ⇒
+        f"${r.getAs[String](0)},${r.getAs[String](1)},${r.getAs[String](2)}"
+      )
+      .toList
+      .sorted
+
+    assert(expected_basis_indicators == compare3)
   }
 }
