@@ -4,7 +4,7 @@ object ChunkComputeStrictGammoids {
 
   /**
     * biggest dipath id in our database of iso-representatives of all weakly
-    * connected digraphs with <= 10 vertices.
+    * connected digraphs with <= 10 arcs.
     */
   val max_dipath_id: Int = 2677189
 
